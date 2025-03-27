@@ -47,11 +47,11 @@ https://crimson-spaceship-473276.postman.co/workspace/Team-Workspace~9f4077f9-83
 
 # LISTA DE RANGOS
 
-A = Agregar
-M = Modificar
-D = Eliminar
+## A = Agregar
+## M = Modificar
+## D = Eliminar
 
-**jefe de policia / jefe adjunto**
+## **jefe de policia / jefe adjunto**
 ### A/M/D AGENTES
 ### A/M/D CIUDADANOS
 ### A/M/D INFROMES
@@ -60,7 +60,7 @@ D = Eliminar
 ### A/M/D BUSQUEDA Y CAPTURA
 ### A/M/D CONDENAS
 
-**comandante**
+## **comandante**
 ### A/M/ AGENTES
 ### A/M/ CIUDADANOS
 ### A/M/D INFROMES
@@ -68,13 +68,13 @@ D = Eliminar
 ### A/M/D BUSQUEDA Y CAPTURA
 ### A/M/D CONDENAS
 
-**sargento / detective**
+## **sargento / detective**
 ### A/M/D INFROMES
 ### A/M/D CHOCHES
 ### A/M/D BUSQUEDA Y CAPTURA
 ### A/M/D CONDENAS
 
-**oficial** 
+## **oficial** 
 ### A/M INFROMES
 ### A/M/D CHOCHES
 ### A/M/D BUSQUEDA Y CAPTURA
