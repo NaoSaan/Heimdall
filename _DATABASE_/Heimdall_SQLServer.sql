@@ -10,15 +10,14 @@ Create table Ciudadanos(
 	Sexo char(1) not null,
 	Direccion varchar(100) not null,
 	Foto text,
-	Vive char(1) not null,
-	pwd text not null
+	Vive char(1) not null
 );
 
 Create table Vehiculos(
 	Matricula varchar(7)primary key not null,
 	Modelo varchar(30) not null,
 	Marca varchar(30) not null,
-	Año int not null,
+	Aï¿½o int not null,
 	Tipo varchar(20),
 	Descripcion varchar(50),
 	Nacionalidad varchar(15),
@@ -98,23 +97,23 @@ Create table CodigoPenal(
 --)
 
 insert into Ciudadanos (CURP, Nombre, APaterno, AMaterno, FechaNac, Sexo, Direccion, Foto, Vive) values
-('MEFL030925HDGDRSA1', 'Luis', 'Medrano', 'Fernández', '2003-25-09', 'M', 'Calle 40 1619', null, 'S'),
+('MEFL030925HDGDRSA1', 'Luis', 'Medrano', 'Fernï¿½ndez', '2003-25-09', 'M', 'Calle 40 1619', null, 'S'),
 ('LIFO030323HDGRLSA8', 'Adrian', 'Lira', 'Flores', '2003-23-03', 'M', 'Pollos Hermanos', null, 'S'),
-('ROMJ030511HDGBNA4', 'Jesús', 'Robles', 'Mendoza', '2003-11-05', 'M', 'Las Canchas Luna', null, 'S');
+('ROMJ030511HDGBNA4', 'Jesï¿½s', 'Robles', 'Mendoza', '2003-11-05', 'M', 'Las Canchas Luna', null, 'S');
 
-insert into Vehiculos(Matricula,Modelo,Marca,Tipo,Descripcion,Nacionalidad,curpFK,Año) values
+insert into Vehiculos(Matricula,Modelo,Marca,Tipo,Descripcion,Nacionalidad,curpFK,Aï¿½o) values
 ('FZR224D','3','Mazda','Vehiculo','Vehiculo de color blanco','Mexicano','MEFL030925HDGDRSA1',2010),
 ('GDA256C','Compass','Jeep','Camioneta','Vehiculo de color negro','Mexicano','LIFO030323HDGRLSA8',2014),
 ('AHC156D','Sentra','Nissan','Vehiculo','Vehiculo de color amarillo','Mexicano','ROMJ030511HDGBNA4',2004);
 
 insert into CodigoPenal (N_Articulo, NombreArt, Descripcion, Periodo, Importe) values  
-(367, 'Robo', 'Se sanciona el apoderamiento de una cosa ajena sin consentimiento.','6 meses a 6 años', 20000.00),  
-(209, 'Fraude', 'Quien engañe para obtener un beneficio ilícito será sancionado.','3 meses a 3 años', 15000.00),  
-(136, 'Homicidio', 'Al que prive de la vida a otro en riña','6 a 16 años', 240000.00);
+(367, 'Robo', 'Se sanciona el apoderamiento de una cosa ajena sin consentimiento.','6 meses a 6 aï¿½os', 20000.00),  
+(209, 'Fraude', 'Quien engaï¿½e para obtener un beneficio ilï¿½cito serï¿½ sancionado.','3 meses a 3 aï¿½os', 15000.00),  
+(136, 'Homicidio', 'Al que prive de la vida a otro en riï¿½a','6 a 16 aï¿½os', 240000.00);
 
 insert into Agentes (N_Placa, Nombre, APaterno, AMaterno, Sexo, Dept, Rango,pwd) values
 ('A000000T', 'Ariel', 'del Llano', 'Carlos', 'M', 'Transito', 'comandante','$2b$10$XApdznvQdeGkoC4QeDtW.OJbMZKXQjHse1ctSWLhE00Q0iyA1UeVq'),
-('F000001F', 'Francisco', 'Palacios', 'Peñaloza', 'M','Fuerzas Especiales', 'jefe de policia','$2b$10$XApdznvQdeGkoC4QeDtW.OJbMZKXQjHse1ctSWLhE00Q0iyA1UeVq'),
+('F000001F', 'Francisco', 'Palacios', 'Peï¿½aloza', 'M','Fuerzas Especiales', 'jefe de policia','$2b$10$XApdznvQdeGkoC4QeDtW.OJbMZKXQjHse1ctSWLhE00Q0iyA1UeVq'),
 ('G000002T', 'Gabriel', 'de Santiago', 'Saavedra', 'M', 'Transito', 'official','$2b$10$XApdznvQdeGkoC4QeDtW.OJbMZKXQjHse1ctSWLhE00Q0iyA1UeVq');
 
 Insert into TipoCondena(Tipo) values 

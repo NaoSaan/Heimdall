@@ -7,8 +7,7 @@ Create table Ciudadanos(
 	Sexo char(1) not null,
 	Direccion varchar(100) not null,
 	Foto text,
-	Vive char(1) not null,
-	pwd text not null
+	Vive char(1) not null
 );
 
 Create table Vehiculos(
