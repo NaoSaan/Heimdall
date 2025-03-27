@@ -70,36 +70,10 @@ Create table CodigoPenal(
  alter table GeneraB add foreign key (id_condenaFK) references Condena(ID_Condena);
  alter table GeneraB add foreign key (curpFK) references Ciudadanos(CURP);
 
--- MongoDB
-
--- Create table Informes(
--- Folio varchar(10) primary key not null,
--- Descripcion varchar(50) not null,
--- Fecha datetime not null,
--- Direccion varchar(100) not null,
--- Foto text,
--- Estatus char(1) not null,
--- curpFK char(18),
--- id_condenaFk int
--- n_placa varchar(10)
--- )
-
--- Create table AgenteInfo(
--- ID_AgenteInfo int primary key identity(1,1),
--- n_placa char(8),
--- folioFK varchar(10)
--- )
-
--- Create table InfoCod(
--- ID_InfoCod int primary key identity(1,1),
--- folioFK varchar(10),
--- n_articulo int
--- )
-
 insert into Ciudadanos (CURP, Nombre, APaterno, AMaterno, FechaNac, Sexo, Direccion, Foto, Vive) values
-('MEFL030925HDGDRSA1', 'Luis', 'Medrano', 'Fernández', '2003-09-25', 'M', 'Calle 40 1619', null, 'S'),
-('LIFO030323HDGRLSA8', 'Adrian', 'Lira', 'Flores', '2003-03-23', 'M', 'Pollos Hermanos', null, 'S'),
-('ROMJ030511HDGBNA4', 'Jesús', 'Robles', 'Mendoza', '2003-05-11', 'M', 'Las Canchas Luna', null, 'S');
+('MEFL030925HDGDRSA1', 'Luis', 'Medrano', 'Fernández', '2003-09-25', 'M', 'Calle 40 1619', 'Ruta/Foto', 'S'),
+('LIFO030323HDGRLSA8', 'Adrian', 'Lira', 'Flores', '2003-03-23', 'M', 'Pollos Hermanos', 'Ruta/Foto', 'S'),
+('ROMJ030511HDGBNA4', 'Jesús', 'Robles', 'Mendoza', '2003-05-11', 'M', 'Las Canchas Luna', 'Ruta/Foto', 'S');
 
 insert into Vehiculos(Matricula,Modelo,Marca,Tipo,Descripcion,Nacionalidad,curpFK,Año) values
 ('FZR224D','3','Mazda','Vehiculo','Vehiculo de color blanco','Mexicano','MEFL030925HDGDRSA1',2010),
