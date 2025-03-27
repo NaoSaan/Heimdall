@@ -1,16 +1,15 @@
 const mongoose = require('mongoose');
 
-const informesSchema = new mongoose.Schema({
-  id: { type: String, required: true },
+const informeSchema = new mongoose.Schema({
   Estatus: { type: String, required: true },
-  informe_involucrados: { 
+  Informe_Involucrados: { 
     CURP: { type: String, required: true },
     Articulos:{
         Num_Art:{type: String, required: true},
     },
     Id_Condena: {type: String, required: true},
   },
-  Agentes_Informe: {
+  Informe_Agentes: {
     Num_Placa: { type: String, required: true },
   },
   Fecha_Informe: { type: Date, required: true },
@@ -28,4 +27,4 @@ const informesSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model('Informes', informesSchema);
+module.exports = mongoose.model('Informes', informeSchema);

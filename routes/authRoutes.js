@@ -7,10 +7,10 @@ const bcrypt = require('bcryptjs');
 router.post('/login', async (req, res) => {
   try {
     const { N_Placa, password } = req.body;
-    const result = await pool.query('SELECT * FROM Agentes WHERE N_Placa = ?', [N_Placa]);
-    const agente = result[0];
+    const [rows] = await pool.query('SELECT * FROM Agentes WHERE N_Placa = ?', [N_Placa]);
+    const agente = rows[0];
 
-    if (!agente || !(await bcrypt.compare(password, agente.password))) {
+    if (!agente || !(await bcrypt.compare(password, agente.pwd))) {
       return res.status(401).json({ message: 'Credenciales inválidas' });
     }
 
@@ -37,9 +37,11 @@ router.post('/login', async (req, res) => {
       Rango: rangoAgrupado,
       agente
     });
-//Linea de error en caso de que no se pueda hacer el login
+    //Linea de error en caso de que no se pueda hacer el login
   } catch (error) {
-    console.error('Error en el login:', error);
-    res.status(500).json({ message: 'Error en el servidor' });
+    console.error( "Error al acceder al servidor: " + error.message );
+    res.status(500).json({ message: "Error al acceder al servidor: " + error.message });
   }
 });
+
+module.exports = router;

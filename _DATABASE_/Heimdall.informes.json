@@ -1,0 +1,129 @@
+[{
+  "_id": {
+    "$oid": "67d0b4dac98ca4af44c4c66a"
+  },
+  "Estatus": "A",
+  "Fecha": "2025-02-10",
+  "Descripcion": "Medrano sin el consentimiento de Ana, decide entrar a su casa mientras ella no está. Al no haber cámaras de seguridad ni testigos, se apodera de su televisión y algunos objetos de valor. Después de vender los artículos robados, la policía logra rastrear la venta y arresta a Medrano",
+  "Foto": [
+    {
+      "URL": "http://example.com/photo1.jpg"
+    }
+  ],
+  "Direccion": {
+    "Calle": "Av. Revolución",
+    "Colonia": "Centro",
+    "Numero_Ext": "123",
+    "Ciudad": "Ciudad de México",
+    "Estado": "CDMX",
+    "Pais": "México"
+  },
+  "Informe_Agentes": [
+    {
+      "Num_Placa": "A000000T"
+    }
+  ],
+  "Informe_Involucrados": [
+    {
+      "CURP": "MEFL030925HDGDRSA1",
+      "Articulos": [
+        {
+          "Num_Art": "367"
+        }
+      ],
+      "Id_Condena": "4"
+    }
+  ]
+},
+{
+  "_id": {
+    "$oid": "67d12a1754f3304bd6c535f3"
+  },
+  "Estatus": "C",
+  "Fecha": "2025-01-09",
+  "Descripcion": "Adrián Lira, empleado de una empresa de tecnología, se aprovecha de su acceso a las cuentas de clientes para modificar datos bancarios y transferir dinero a su cuenta personal.",
+  "Foto": [
+    {
+      "URL": "http://example.com/photo1.jpg"
+    }
+  ],
+  "Direccion": {
+    "Calle": "Calle 5 de Febrero",
+    "Colonia": "Roma Norte",
+    "Numero_Ext": "456",
+    "Ciudad": "Ciudad de México",
+    "Estado": "CDMX",
+    "Pais": "México"
+  },
+  "Informe_Agentes": [
+    {
+      "Num_Placa": "F000001F"
+    },
+    {
+      "Num_Placa": "A000000T"
+    }
+  ],
+  "Informe_Involucrados": [
+    {
+      "CURP": "LIFO030323HDGRLSA8",
+      "Articulos": [
+        {
+          "Num_Art": "209"
+        }
+      ],
+      "Id_Condena": "3"
+    }
+  ]
+},
+{
+  "_id": {
+    "$oid": "67d12ad554f3304bd6c535f4"
+  },
+  "Estatus": "A",
+  "Fecha": "2025-03-11",
+  "Descripcion": "En una fiesta, Jesús Robles se ve envuelto en una riña con un individuo, debido a una discusión que se intensifica. Durante el altercado, en un arranque de ira, Jesús empuja al otro hombre hacia un objeto contundente, lo que causa la muerte del mismo. ",
+  "Foto": [
+    {
+      "URL": "http://example.com/photo1.jpg"
+    },
+    {
+      "URL": "http://example.com/photo2.jpg"
+    }
+  ],
+  "Direccion": {
+    "Calle": "Avenida Insurgentes Sur",
+    "Colonia": "Del Valle",
+    "Numero_Ext": "789",
+    "Ciudad": "Ciudad de México",
+    "Estado": "CDMX",
+    "Pais": "México"
+  },
+  "Informe_Agentes": [
+    {
+      "Num_Placa": "G000002T"
+    }
+  ],
+  "Informe_Involucrados": [
+    {
+      "CURP": "ROMJ030511HDGBNA4",
+      "Articulos": [
+        {
+          "Num_Art": "136"
+        }
+      ],
+      "Id_Condena": "1"
+    },
+    {
+      "CURP": "LIFO030323HDGRLSA8",
+      "Articulos": [
+        {
+          "Num_Art": "136"
+        },
+        {
+          "Num_Art": "209"
+        }
+      ],
+      "Id_Condena": "1"
+    }
+  ]
+}]

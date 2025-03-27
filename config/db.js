@@ -8,7 +8,7 @@ const pool = mysql.createPool({
     password: process.env.PG_PASSWORD,
     database: process.env.PG_DABASE,
     port: process.env.PG_PORT,
-});
+}).promise();
 
 
 const conectarMongoDB = async () => {
@@ -24,4 +24,4 @@ const conectarMongoDB = async () => {
     }
 };
 
-module.exports = {pool, conectarMongoDB};
+module.exports = { pool, conectarMongoDB};
