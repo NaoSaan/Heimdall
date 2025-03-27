@@ -116,7 +116,6 @@ insert into Agentes (N_Placa, Nombre, APaterno, AMaterno, Sexo, Dept, Rango,pwd)
 ('F000001F', 'Francisco', 'Palacios', 'Peñaloza', 'M','Fuerzas Especiales', 'jefe de policia','$2b$10$XApdznvQdeGkoC4QeDtW.OJbMZKXQjHse1ctSWLhE00Q0iyA1UeVq'),
 ('G000002T', 'Gabriel', 'de Santiago', 'Saavedra', 'M', 'Transito', 'official','$2b$10$XApdznvQdeGkoC4QeDtW.OJbMZKXQjHse1ctSWLhE00Q0iyA1UeVq');
 
-select * from agentes;
 Insert into TipoCondena(Tipo) values 
 ('Derecho a fianza'),
 ('Arresto Domiciliario'),
