@@ -3,11 +3,11 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 
 const pool = mysql.createPool({
-    host: process.env.PG_HOST,
-    user: process.env.PG_USER,
-    password: process.env.PG_PASSWORD,
-    database: process.env.PG_DABASE,
-    port: process.env.PG_PORT,
+    host: process.env.MY_HOST,
+    user: process.env.MY_USER,
+    password: process.env.MY_PASSWORD,
+    database: process.env.MY_DABASE,
+    port: process.env.MY_PORT,
 }).promise();
 
 
@@ -24,4 +24,4 @@ const conectarMongoDB = async () => {
     }
 };
 
-module.exports = { pool, conectarMongoDB};
+module.exports = {pool, conectarMongoDB};
