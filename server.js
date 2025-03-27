@@ -17,7 +17,7 @@ app.use('/api/agentes/auth',require('./routes/authRoutes.js'));
 //RUTA PARA INFORMES
 app.use('/api/informes',require('./routes/informesRoutes.js'));
 //RUTA PARA CODIGO PENAL
-app.use('/api/codigoPenal',require('./routes/ShowCodP.js'));
+app.use('/api/codigoPenal',require('./routes/CodPenalRoutes.js'));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT,() => console.log(`Servidor corriendo en el puerto ${PORT}`));
