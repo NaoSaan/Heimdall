@@ -48,4 +48,43 @@ router.get('/', async (req, res) => {
     }
 });
 
+// Inserta un nuevo ciudadano en MySQL
+router.post('/insert', async (req, res) => {
+    try {
+        const { CURP, Nombre, APaterno, AMaterno, FechaNac, Sexo, Direccion, Foto, Vive} = req.body;
+
+        // Validamos que los campos no sean nulos
+        if (!Nombre || !APaterno || !AMaterno ||!FechaNac ||!Sexo ||!Direccion ||!Foto ||!Vive) {
+            return res.status(400).json({ 
+                error: 'Todos los campos son obligatorios' 
+            });
+        }
+
+        //Consulta para insertar los datos del ciudadano donde cada "?" es un campo de la tabla "Ciudadanos" en MySQL
+        const query = `
+            Insert Into Ciudadanos (CURP, Nombre, APaterno, AMaterno, FechaNac, Sexo, Direccion, Foto, Vive ) VALUES 
+            (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `;
+
+        //Arreglo con los valores pertenecientes a la consulta
+        const values = [CURP, Nombre, APaterno, AMaterno, FechaNac, Sexo, Direccion, Foto, Vive];
+
+        //Ejecucion de la consulta
+        const [result] = await pool.query(query, values);
+
+        //Respuesta del servidor (Mensaje de exito y el id del ciudadano)
+        res.status(201).json({
+            message: 'Ciudadano agregado exitosamente',
+            ciudadanoId: result.insertId
+        });
+
+    } catch (error) {
+        //Si algo no se ejecuta correctamente, mostramos el error en consola 
+        console.error('Error al insertar el ciudadano:', error);
+        res.status(500).json({ 
+            error: 'Error al insertar el ciudadano en la base de datos' 
+        });
+    }
+});
+
 module.exports = router;

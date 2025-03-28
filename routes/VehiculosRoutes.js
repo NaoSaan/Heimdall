@@ -48,4 +48,43 @@ router.get('/', async (req, res) => {
     }
 });
 
+// Inserta un nuevo vehiculo en MySQL
+router.post('/insert', async (req, res) => {
+    try {
+        const { Matricula, Modelo, Marca, Año, Tipo, Descripcion, Nacionalidad, curpFK} = req.body;
+
+        // Validamos que los campos no sean nulos
+        if (!Matricula || !Modelo || !Marca || !Año || !Tipo || !Descripcion || !Nacionalidad || !curpFK) {
+            return res.status(400).json({ 
+                error: 'Todos los campos son obligatorios' 
+            });
+        }
+
+        //Consulta para insertar los datos del vehiculo donde cada "?" es un campo de la tabla "Vehiculos" en MySQL
+        const query = `
+            Insert Into Vehiculos (Matricula, Modelo, Marca, Año, Tipo, Descripcion, Nacionalidad, curpFK) VALUES 
+            (?, ?, ?, ?, ?, ?, ?, ?)
+        `;
+
+        //Arreglo con los valores pertenecientes a la consulta
+        const values = [Matricula, Modelo, Marca, Año, Tipo, Descripcion, Nacionalidad, curpFK];
+
+        //Ejecucion de la consulta
+        const [result] = await pool.query(query, values);
+
+        //Respuesta del servidor (Mensaje de exito y el id de la busqueda)
+        res.status(201).json({
+            message: 'Vehiculo agregado exitosamente',
+            ciudadanoId: result.insertId
+        });
+
+    } catch (error) {
+        //Si algo no se ejecuta correctamente, mostramos el error en consola 
+        console.error('Error al insertar el vehiculo:', error);
+        res.status(500).json({ 
+            error: 'Error al insertar el vehiculo en la base de datos' 
+        });
+    }
+});
+
 module.exports = router;

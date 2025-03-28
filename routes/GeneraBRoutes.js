@@ -48,4 +48,43 @@ router.get('/', async (req, res) => {
     }
 });
 
+// Inserta una nueva busqueda en MySQL
+router.post('/insert', async (req, res) => {
+    try {
+        const { Folio_BC, Clasi, Cantidad, curpFK, id_condenaFK} = req.body;
+
+        // Validamos que los campos no sean nulos
+        if (!Folio_BC || !Clasi || !Cantidad || !curpFK || !id_condenaFK) {
+            return res.status(400).json({ 
+                error: 'Todos los campos son obligatorios' 
+            });
+        }
+
+        //Consulta para insertar los datos de la busqueda donde cada "?" es un campo de la tabla "GeneraB" en MySQL
+        const query = `
+            Insert Into GeneraB (Folio_BC, Clasi, Cantidad, curpFK, id_condenaFK) VALUES 
+            (?, ?, ?, ?, ?)
+        `;
+
+        //Arreglo con los valores pertenecientes a la consulta
+        const values = [Folio_BC, Clasi, Cantidad, curpFK, id_condenaFK];
+
+        //Ejecucion de la consulta
+        const [result] = await pool.query(query, values);
+
+        //Respuesta del servidor (Mensaje de exito y el id de la busqueda)
+        res.status(201).json({
+            message: 'Busqueda agregada exitosamente',
+            ciudadanoId: result.insertId
+        });
+
+    } catch (error) {
+        //Si algo no se ejecuta correctamente, mostramos el error en consola 
+        console.error('Error al insertar la busqueda:', error);
+        res.status(500).json({ 
+            error: 'Error al insertar la busqueda en la base de datos' 
+        });
+    }
+});
+
 module.exports = router;

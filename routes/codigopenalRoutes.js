@@ -49,4 +49,43 @@ router.get('/', async (req, res) => {
     }
 });
 
+// Inserta un nuevo articulo del codigo penal en MySQL
+router.post('/insert', async (req, res) => {
+    try {
+        const { N_Articulo, NombreArt, Descripcion, Periodo, Importe} = req.body;
+
+        // Validamos que los campos no sean nulos
+        if (!N_Articulo || !NombreArt || !Descripcion || !Periodo || !Importe) {
+            return res.status(400).json({ 
+                error: 'Todos los campos son obligatorios' 
+            });
+        }
+
+        //Consulta para insertar los datos del articulo donde cada "?" es un campo de la tabla "CodigoPenal" en MySQL
+        const query = `
+            Insert Into CodigoPenal (N_Articulo, NombreArt, Descripcion, Periodo, Importe) VALUES 
+            (?, ?, ?, ?, ?)
+        `;
+
+        //Arreglo con los valores pertenecientes a la consulta
+        const values = [N_Articulo, NombreArt, Descripcion, Periodo, Importe];
+
+        //Ejecucion de la consulta
+        const [result] = await pool.query(query, values);
+
+        //Respuesta del servidor (Mensaje de exito y el id de la condena)
+        res.status(201).json({
+            message: 'Articulo agregado exitosamente',
+            ciudadanoId: result.insertId
+        });
+
+    } catch (error) {
+        //Si algo no se ejecuta correctamente, mostramos el error en consola 
+        console.error('Error al insertar el articulo:', error);
+        res.status(500).json({ 
+            error: 'Error al insertar el articulo en la base de datos' 
+        });
+    }
+});
+
 module.exports = router;

@@ -49,4 +49,43 @@ router.get('/', async (req, res) => {
     }
 });
 
+// Inserta una nueva condena en MySQL
+router.post('/insert', async (req, res) => {
+    try {
+        const { Fecha_I, Duracion, Importe, Estatus, id_tipocondenaFK} = req.body;
+
+        // Validamos que los campos no sean nulos
+        if (!Fecha_I || !Duracion || !Importe || !Estatus || !id_tipocondenaFK) {
+            return res.status(400).json({ 
+                error: 'Todos los campos son obligatorios' 
+            });
+        }
+
+        //Consulta para insertar los datos de la condena donde cada "?" es un campo de la tabla "Condena" en MySQL
+        const query = `
+            Insert Into Condena (Fecha_I, Duracion, Importe, Estatus, id_tipocondenaFK) VALUES 
+            (?, ?, ?, ?, ?)
+        `;
+
+        //Arreglo con los valores pertenecientes a la consulta
+        const values = [Fecha_I, Duracion, Importe, Estatus, id_tipocondenaFK];
+
+        //Ejecucion de la consulta
+        const [result] = await pool.query(query, values);
+
+        //Respuesta del servidor (Mensaje de exito y el id de la condena)
+        res.status(201).json({
+            message: 'Condena agregada exitosamente',
+            ciudadanoId: result.insertId
+        });
+
+    } catch (error) {
+        //Si algo no se ejecuta correctamente, mostramos el error en consola 
+        console.error('Error al insertar la condena:', error);
+        res.status(500).json({ 
+            error: 'Error al insertar la condena en la base de datos' 
+        });
+    }
+});
+
 module.exports = router;

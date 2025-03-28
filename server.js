@@ -19,9 +19,9 @@ app.use('/api/informes',require('./routes/informesRoutes.js'));
 //RUTA PARA CODIGO PENAL
 app.use('/api/codigoPenal',require('./routes/codigopenalRoutes.js'));   
 //RUTA PARA CIUDADANOS
-app.use('/api/ciudadanos',require('./routes/ciudadanosRoutes.js'));
+app.use('/api/ciudadanos',require('./routes/CiudadanosRoutes.js'));
 //RUTA PARA AGENTES
-app.use('/api/agentes',require('./routes/agentesRoutes.js'));
+app.use('/api/agentes',require('./routes/AgentesRoutes.js'));
 //RUTA PARA CONDENAS
 app.use('/api/condenas',require('./routes/condenasRoutes.js'));
 //RUTA PARA GENERAB
