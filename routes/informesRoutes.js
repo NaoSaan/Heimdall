@@ -1,6 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const Informe = require('../models/Informes'); // Cambiar modelo a Informe
+
+// Obtener informes
+router.get('/getData', async(req,res)=>{
+    try {
+      const informes = await Informe.find();
+      res.json(informes);
+    }catch (error) {
+        console.error('Error al realizar la consulta', error);
+        res.status(500).json({ error: 'Error al intentar traer la informacion de la base de datos' }); 
+    }
+});
 // Obtener informes por número de placa del agente
 router.get('/:num_placa', async (req, res) => {
   try {
@@ -93,6 +104,41 @@ router.post('/add', async (req, res) => {
       message: 'Error al agregar el informe', 
       error: error.message 
     });
+  }
+});
+//Obrtener todos los informes por filtro
+router.get('/', async (req, res) => {
+  try {
+    const filtro = req.query.by;
+
+    if (!filtro) {
+      const informes = await Informe.find({});
+      return res.json(informes);
+    }
+
+    const informes = await Informe.find({
+      $or: [
+        { Estatus: { $regex: filtro, $options: 'i' } },
+        { Descripcion: { $regex: filtro, $options: 'i' } },
+        { 'Informe_Agentes.Num_Placa': { $regex: filtro, $options: 'i' } },
+        { 'Informe_Involucrados.CURP': { $regex: filtro, $options: 'i' } },
+        { 'Informe_Involucrados.Articulos.Num_Art': { $regex: filtro, $options: 'i' } },
+        { 'Direccion.Calle': { $regex: filtro, $options: 'i' } },
+        { 'Direccion.Colonia': { $regex: filtro, $options: 'i' } },
+        { 'Direccion.Ciudad': { $regex: filtro, $options: 'i' } },
+        { 'Direccion.Estado': { $regex: filtro, $options: 'i' } },
+        { 'Direccion.Pais': { $regex: filtro, $options: 'i' } }
+      ]
+    });
+
+    if (informes.length === 0) {
+      return res.status(404).json({ message: 'No se encontraron informes' });
+    }
+
+    res.json(informes);
+  } catch (error) {
+    console.error('Error al realizar la búsqueda', error);
+    res.status(500).json({ message: 'Error al obtener los informes', error });
   }
 });
 module.exports = router;

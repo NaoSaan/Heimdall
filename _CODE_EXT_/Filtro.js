@@ -2,17 +2,6 @@ const express = require('express');
 const router = express.Router();
 const { pool } = require('../config/db');
 
-// Obtener datos de la tabla Vehiculos
-router.get('/getData', async (req, res) => {
-    try {
-        const [rows] = await pool.query('Select * From Vehiculos');
-        res.json(rows);
-    } catch (error) {
-        console.error('Error al realizar la consulta', error);
-        res.status(500).json({ error: 'Error al intentar traer la informacion de la base de datos' });
-    }
-});
-//Obtener datos de la tabla Vehiculos por filtro
 router.get('/', async (req, res) => {
     try {
         const filtro = req.query.by;
@@ -22,7 +11,7 @@ router.get('/', async (req, res) => {
         }
 
         //Obtenermos todas las columnas de la tabla;
-        const [columns] = await pool.query('SHOW COLUMNS FROM vehiculos');
+        const [columns] = await pool.query('SHOW COLUMNS FROM codigopenal');
         
         //Creamos la condicion WHERE para cada columna
         const condicion = columns
@@ -30,7 +19,7 @@ router.get('/', async (req, res) => {
             .join(' OR ');
         
         // Creamos la consulta
-        const query = `SELECT * FROM vehiculos WHERE ${condicion}`;
+        const query = `SELECT * FROM codigopenal WHERE ${condicion}`;
         
         // Preparamos los valores para la consulta
         const values = Array(columns.length).fill(`%${filtro}%`);

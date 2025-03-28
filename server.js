@@ -13,11 +13,21 @@ conectarMongoDB();
 
 //RUTAS
 //RUTA PARA LOGIN DE AGENTES
-app.use('/api/agentes/auth',require('./routes/authRoutes.js'));
+app.use('/api/auth',require('./routes/authRoutes.js'));
 //RUTA PARA INFORMES
 app.use('/api/informes',require('./routes/informesRoutes.js'));
 //RUTA PARA CODIGO PENAL
-app.use('/api/codigoPenal',require('./routes/CodPenalRoutes.js'));
+app.use('/api/codigoPenal',require('./routes/codigopenalRoutes.js'));   
+//RUTA PARA CIUDADANOS
+app.use('/api/ciudadanos',require('./routes/ciudadanosRoutes.js'));
+//RUTA PARA AGENTES
+app.use('/api/agentes',require('./routes/agentesRoutes.js'));
+//RUTA PARA CONDENAS
+app.use('/api/condenas',require('./routes/condenasRoutes.js'));
+//RUTA PARA GENERAB
+app.use('/api/byc',require('./routes/generabRoutes.js'));
+//RUTA PARA VEHICULOS
+app.use('/api/vehiculos',require('./routes/vehiculosRoutes.js'));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT,() => console.log(`Servidor corriendo en el puerto ${PORT}`));
