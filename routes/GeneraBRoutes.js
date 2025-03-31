@@ -70,12 +70,11 @@ router.post('/insert', async (req, res) => {
         const values = [Folio_BC, Clasi, Cantidad, curpFK, id_condenaFK];
 
         //Ejecucion de la consulta
-        const [result] = await pool.query(query, values);
+        const [] = await pool.query(query, values);
 
-        //Respuesta del servidor (Mensaje de exito y el id de la busqueda)
+        //Respuesta del servidor
         res.status(201).json({
             message: 'Busqueda agregada exitosamente',
-            ciudadanoId: result.insertId
         });
 
     } catch (error) {

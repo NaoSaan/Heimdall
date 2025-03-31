@@ -70,12 +70,11 @@ router.post('/insert', async (req, res) => {
         const values = [CURP, Nombre, APaterno, AMaterno, FechaNac, Sexo, Direccion, Foto, Vive];
 
         //Ejecucion de la consulta
-        const [result] = await pool.query(query, values);
+        const [] = await pool.query(query, values);
 
-        //Respuesta del servidor (Mensaje de exito y el id del ciudadano)
+        //Respuesta del servidor
         res.status(201).json({
             message: 'Ciudadano agregado exitosamente',
-            ciudadanoId: result.insertId
         });
 
     } catch (error) {
@@ -86,5 +85,40 @@ router.post('/insert', async (req, res) => {
         });
     }
 });
+
+router.post('/delete', async (req, res) => {
+    try {
+         const {CURP} = req.body;
+        
+         // Validamos que el campo no sea nulo
+         if(!CURP){
+             return res.status(400).json({ 
+                 error: 'Se necesita una CURP para eliminar el ciudadano' 
+             });
+         }
+
+        //Consulta para eliminar los datos del ciudadano donde "?" es un valor de la base de datos
+         const query = `
+             Delete From Ciudadanos Where CURP = ?
+         `;
+ 
+        const values = [CURP];
+ 
+        //Ejecucion de la consulta
+        const [] = await pool.query(query, values);
+ 
+        //Respuesta del servidor
+        res.status(201).json({
+            message: 'Ciudadano eliminado exitosamente',
+        });
+ 
+    } catch (error) {
+         //Si algo no se ejecuta correctamente, mostramos el error en consola 
+         console.error('Error al eliminar el ciudadano:', error);
+         res.status(500).json({ 
+             error: 'Error al querer eliminar el ciudadano de la base de datos' 
+         });
+    } 
+ });
 
 module.exports = router;

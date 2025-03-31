@@ -71,12 +71,11 @@ router.post('/insert', async (req, res) => {
         const values = [N_Articulo, NombreArt, Descripcion, Periodo, Importe];
 
         //Ejecucion de la consulta
-        const [result] = await pool.query(query, values);
+        const [] = await pool.query(query, values);
 
-        //Respuesta del servidor (Mensaje de exito y el id de la condena)
+        //Respuesta del servidor
         res.status(201).json({
             message: 'Articulo agregado exitosamente',
-            ciudadanoId: result.insertId
         });
 
     } catch (error) {
@@ -86,6 +85,41 @@ router.post('/insert', async (req, res) => {
             error: 'Error al insertar el articulo en la base de datos' 
         });
     }
+});
+
+router.post('/delete', async (req, res) => {
+   try {
+        const {N_Articulo} = req.body;
+
+        // Validamos que el campo no sea nulo
+        if(!N_Articulo){
+            return res.status(400).json({ 
+                error: 'Se necesita un ID para eliminar el articulo' 
+            });
+        }
+        
+        //Consulta para eliminar los datos del articulo donde "?" es un valor de la base de datos
+        const query = `
+            Delete From CodigoPenal Where N_Articulo = ?
+        `;
+
+       const values = [N_Articulo];
+
+       //Ejecucion de la consulta
+       const [] = await pool.query(query, values);
+
+       //Respuesta del servidor
+       res.status(201).json({
+           message: 'Articulo eliminado exitosamente',
+       });
+
+   } catch (error) {
+        //Si algo no se ejecuta correctamente, mostramos el error en consola 
+        console.error('Error al eliminar el articulo:', error);
+        res.status(500).json({ 
+            error: 'Error al querer eliminar el articulo de la base de datos' 
+        });
+   } 
 });
 
 module.exports = router;

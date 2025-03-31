@@ -71,12 +71,11 @@ router.post('/insert', async (req, res) => {
         const values = [Fecha_I, Duracion, Importe, Estatus, id_tipocondenaFK];
 
         //Ejecucion de la consulta
-        const [result] = await pool.query(query, values);
+        const [] = await pool.query(query, values);
 
-        //Respuesta del servidor (Mensaje de exito y el id de la condena)
+        //Respuesta del servidor
         res.status(201).json({
             message: 'Condena agregada exitosamente',
-            ciudadanoId: result.insertId
         });
 
     } catch (error) {

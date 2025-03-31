@@ -70,12 +70,11 @@ router.post('/insert', async (req, res) => {
         const values = [Matricula, Modelo, Marca, Año, Tipo, Descripcion, Nacionalidad, curpFK];
 
         //Ejecucion de la consulta
-        const [result] = await pool.query(query, values);
+        const [] = await pool.query(query, values);
 
-        //Respuesta del servidor (Mensaje de exito y el id de la busqueda)
+        //Respuesta del servidor
         res.status(201).json({
             message: 'Vehiculo agregado exitosamente',
-            ciudadanoId: result.insertId
         });
 
     } catch (error) {
@@ -86,5 +85,40 @@ router.post('/insert', async (req, res) => {
         });
     }
 });
+
+router.post('/delete', async (req, res) => {
+    try {
+         const {Matricula} = req.body;
+ 
+         // Validamos que el campo no sea nulo
+         if(!Matricula){
+             return res.status(400).json({ 
+                 error: 'Se necesita una matricula para eliminar el vehiculo' 
+             });
+         }
+         
+         //Consulta para eliminar los datos del vehiculo donde "?" es un valor de la base de datos
+         const query = `
+             Delete From Vehiculos Where Matricula = ?
+         `;
+ 
+        const values = [Matricula];
+ 
+        //Ejecucion de la consulta
+        const [] = await pool.query(query, values);
+ 
+        //Respuesta del servidor 
+        res.status(201).json({
+            message: 'Vehiculo eliminado exitosamente',
+        });
+ 
+    } catch (error) {
+         //Si algo no se ejecuta correctamente, mostramos el error en consola 
+         console.error('Error al eliminar el vehiculo:', error);
+         res.status(500).json({ 
+             error: 'Error al querer eliminar el vehiculo de la base de datos' 
+         });
+    } 
+ });
 
 module.exports = router;

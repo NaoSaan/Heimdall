@@ -141,4 +141,28 @@ router.get('/', async (req, res) => {
     res.status(500).json({ message: 'Error al obtener los informes', error });
   }
 });
+
+router.post('/delete', async (req, res) => {
+  try {
+    const {Folio} = req.body;
+
+    if (!Folio) {
+      return res.status(400).json({ message: 'El ID es requerido' });
+    }
+
+    const informe = await Informe.findById(Folio);
+
+    if (!informe) {
+      return res.status(404).json({ message: 'Informe no encontrado' });
+    }
+
+    await Informe.deleteOne({ _id: Folio });
+    res.json({ message: 'Informe eliminado', informe });
+  }
+  catch (error) {
+    console.error('Error al eliminar el informe', error);
+    res.status(500).json({ message: 'Error al eliminar el informe', error });
+  }
+});
+
 module.exports = router;

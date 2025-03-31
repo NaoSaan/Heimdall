@@ -25,6 +25,6 @@ const informeSchema = new mongoose.Schema({
     Estado: { type: String, required: true },
     Pais: { type: String, required: true },
   },
-});
+},{collection: 'Informes'});
 
 module.exports = mongoose.model('Informes', informeSchema);
