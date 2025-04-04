@@ -3,7 +3,7 @@ const router = express.Router();
 const Informe = require('../models/Informes'); // Cambiar modelo a Informe
 
 // Obtener informes
-router.get('/getData', async(req,res)=>{
+router.get('/All', async(req,res)=>{
     try {
       const informes = await Informe.find();
       res.json(informes);

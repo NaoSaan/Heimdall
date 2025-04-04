@@ -3,7 +3,7 @@ const router = express.Router();
 const { pool } = require('../config/db');
 
 // Obtener datos de la tabla ciudadanos
-router.get('/getData', async (req, res) => {
+router.get('/All', async (req, res) => {
     try {
         const [rows] = await pool.query('Select * From Ciudadanos');
         res.json(rows);

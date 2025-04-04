@@ -3,7 +3,7 @@ const router = express.Router();
 const { pool } = require('../config/db');
 
 //Obtener todos los datos de la tabla CodigoPenal
-router.get('/getData', async (req, res) => {
+router.get('/All', async (req, res) => {
     try {
         const [rows] = await pool.query('Select * From CodigoPenal');
         res.json(rows);

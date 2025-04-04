@@ -3,7 +3,7 @@ const router = express.Router();
 const { pool } = require('../config/db');
 
 //obtener datos de la tabla GeneraB
-router.get('/getData', async (req, res) => {
+router.get('/All', async (req, res) => {
     try {
         const [rows] = await pool.query('Select * From GeneraB');
         res.json(rows);
