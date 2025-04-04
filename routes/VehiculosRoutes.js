@@ -60,6 +60,36 @@ router.post('/insert', async (req, res) => {
             });
         }
 
+        //Validacion: Matricula posea 7 caracteres
+        if (Matricula.length != 7) {
+            return res.status(400).json({
+                error: 'La matricula debe tener 18 caracteres'
+            })
+        }
+
+         //Validacion: curpFK posea 18 caracteres
+         if (curpFK.length != 18) {
+            return res.status(400).json({
+                error: 'La CURP debe tener 18 caracteres'
+            })
+        }
+
+        //Validacion: Matricula no exista en la base de datos
+        const [existVehiculo] = await pool.query('SELECT * FROM Vehiculos WHERE Matricula =?', [Matricula]);
+        if (existVehiculo.length > 0) {
+            return res.status(400).json({
+                error: 'El vehiculo ya existe en la base de datos'
+            });
+        }
+
+        //Validacion: CURP exista en la base de datos
+        const [existCiudadano] = await pool.query('SELECT * FROM ciudadanos WHERE CURP =?', [curpFK]);
+        if (!existCiudadano.length > 0) {
+            return res.status(400).json({
+                error: 'La CURP no existe en la base de datos'
+            });
+        }
+
         //Consulta para insertar los datos del vehiculo donde cada "?" es un campo de la tabla "Vehiculos" en MySQL
         const query = `
             Insert Into Vehiculos (Matricula, Modelo, Marca, Año, Tipo, Descripcion, Nacionalidad, curpFK) VALUES 
@@ -120,5 +150,73 @@ router.post('/delete', async (req, res) => {
          });
     } 
  });
+
+// Modifica un vehiculo en MySQL
+router.post('/update', async (req, res) => {
+    try {
+        const { Matricula, Modelo, Marca, Año, Tipo, Descripcion, Nacionalidad, curpFK} = req.body;
+
+        // Validamos que los campos no sean nulos
+        if (!Matricula || !Modelo || !Marca || !Año || !Tipo || !Descripcion || !Nacionalidad || !curpFK) {
+            return res.status(400).json({ 
+                error: 'Todos los campos son obligatorios' 
+            });
+        }
+
+         //Validacion: Vehiculo exista en la base de datos
+         const [existVehiculo] = await pool.query('SELECT * FROM Vehiculos WHERE Matricula =?', [Matricula]);
+         if (!existVehiculo.length > 0) {
+             return res.status(400).json({
+                 error: 'El vehiculo que se quiere actualizar no existe en la base de datos'
+             });
+         }
+
+        //Validacion: Matricula posea 7 caracteres
+        if (Matricula.length != 7) {
+            return res.status(400).json({
+                error: 'La matricula debe tener 18 caracteres'
+            })
+        }
+
+         //Validacion: curpFK posea 18 caracteres
+         if (curpFK.length != 18) {
+            return res.status(400).json({
+                error: 'La CURP debe tener 18 caracteres'
+            })
+        }
+
+         //Validacion: CURP exista en la base de datos
+         const [existCiudadano] = await pool.query('SELECT * FROM ciudadanos WHERE CURP =?', [curpFK]);
+         if (!existCiudadano.length > 0) {
+             return res.status(400).json({
+                 error: 'La CURP no existe en la base de datos'
+             });
+         }
+
+        //Consulta para modificar los datos del vehiculo donde cada "?" es un campo de la tabla "Vehiculos" en MySQL
+        const query = `
+            Update Vehiculos Set
+            Modelo =?, Marca =?, Año =?, Tipo =?, Descripcion =?, Nacionalidad =?, curpFK =? Where Matricula =?
+        `;
+
+        //Arreglo con los valores pertenecientes a la consulta
+        const values = [Modelo, Marca, Año, Tipo, Descripcion, Nacionalidad, curpFK, Matricula];
+
+        //Ejecucion de la consulta
+        const [] = await pool.query(query, values);
+
+        //Respuesta del servidor
+        res.status(201).json({
+            message: 'Vehiculo actualizado exitosamente',
+        });
+
+    } catch (error) {
+        //Si algo no se ejecuta correctamente, mostramos el error en consola 
+        console.error('Error al actualizar el vehiculo:', error);
+        res.status(500).json({ 
+            error: 'Error al actualizar el vehiculo en la base de datos' 
+        });
+    }
+});
 
 module.exports = router;

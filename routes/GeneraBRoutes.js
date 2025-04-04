@@ -60,6 +60,29 @@ router.post('/insert', async (req, res) => {
             });
         }
 
+        //Validacion: Clasificacion sea M, A o B
+        if (Clasi != 'M' && Clasi != 'A' && Clasi!= 'B') {
+            return res.status(400).json({
+                error: 'La clasificacion debe ser M, A o B'
+            })
+        }
+
+        //Validacion: CURP exista en la base de datos
+        const [existCiudadano] = await pool.query('SELECT * FROM ciudadanos WHERE CURP =?', [curpFK]);
+        if (!existCiudadano.length > 0) {
+            return res.status(400).json({
+                error: 'La CURP no existe en la base de datos'
+            });
+        }
+
+         //Validacion: Condena no exista en la base de datos
+         const [existCondena] = await pool.query('SELECT * FROM Condena WHERE ID_Condena =?', [id_condenaFK]);
+         if (!existCondena.length > 0) {
+             return res.status(400).json({
+                 error: 'La condena no existe en la base de datos'
+             });
+         }
+
         //Consulta para insertar los datos de la busqueda donde cada "?" es un campo de la tabla "GeneraB" en MySQL
         const query = `
             Insert Into GeneraB (Folio_BC, Clasi, Cantidad, curpFK, id_condenaFK) VALUES 
@@ -82,6 +105,75 @@ router.post('/insert', async (req, res) => {
         console.error('Error al insertar la busqueda:', error);
         res.status(500).json({ 
             error: 'Error al insertar la busqueda en la base de datos' 
+        });
+    }
+});
+
+// Modifica busqueda en MySQL
+router.post('/update', async (req, res) => {
+    try {
+        const { Folio_BC, Clasi, Cantidad, curpFK, id_condenaFK} = req.body;
+
+        // Validamos que los campos no sean nulos
+        if (!Folio_BC || !Clasi || !Cantidad || !curpFK || !id_condenaFK) {
+            return res.status(400).json({ 
+                error: 'Todos los campos son obligatorios' 
+            });
+        }
+
+        //Validacion: Busqueda exista en la base de datos
+        const [existBusqueda] = await pool.query('SELECT * FROM GeneraB WHERE Folio_BC =?', [Folio_BC]);
+        if (!existBusqueda.length > 0) {
+            return res.status(400).json({
+                error: 'La busqueda que se quiere actualizar no existe en la base de datos'
+            });
+        }
+
+         //Validacion: Clasificacion sea M, A o B
+         if (Clasi != 'M' && Clasi != 'A' && Clasi!= 'B') {
+            return res.status(400).json({
+                error: 'La clasificacion debe ser M, A o B'
+            })
+        }
+
+        //Validacion: CURP exista en la base de datos
+        const [existCiudadano] = await pool.query('SELECT * FROM ciudadanos WHERE CURP =?', [curpFK]);
+        if (!existCiudadano.length > 0) {
+            return res.status(400).json({
+                error: 'La CURP no existe en la base de datos'
+            });
+        }
+
+         //Validacion: Condena no exista en la base de datos
+         const [existCondena] = await pool.query('SELECT * FROM Condena WHERE ID_Condena =?', [id_condenaFK]);
+         if (!existCondena.length > 0) {
+             return res.status(400).json({
+                 error: 'La condena no existe en la base de datos'
+             });
+         }
+
+        //Consulta para insertar los datos de la busqueda donde cada "?" es un campo de la tabla "GeneraB" en MySQL
+        const query = `
+            update GeneraB set 
+            Clasi=?, Cantidad=?, curpFK=?, id_condenaFK=? where Folio_BC=?
+        `;
+
+        //Arreglo con los valores pertenecientes a la consulta
+        const values = [Clasi, Cantidad, curpFK, id_condenaFK, Folio_BC];
+
+        //Ejecucion de la consulta
+        const [] = await pool.query(query, values);
+
+        //Respuesta del servidor
+        res.status(201).json({
+            message: 'Busqueda actualizada exitosamente',
+        });
+
+    } catch (error) {
+        //Si algo no se ejecuta correctamente, mostramos el error en consola 
+        console.error('Error al actualizar la busqueda:', error);
+        res.status(500).json({ 
+            error: 'Error al actualizar la busqueda en la base de datos' 
         });
     }
 });

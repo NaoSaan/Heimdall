@@ -56,7 +56,7 @@ router.post('/insert', async (req, res) => {
         const values = [N_Placa, Nombre, APaterno, AMaterno, Sexo, Dept.toLowerCase(), Rango.toLowerCase(), pwdEncriptada];
 
         //Ejecucion de la consulta
-        const [result] = await pool.query(query, values);
+        const [] = await pool.query(query, values);
 
         res.status(201).json({
             message: 'Agente agregado exitosamente',

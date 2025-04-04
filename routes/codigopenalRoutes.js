@@ -61,6 +61,22 @@ router.post('/insert', async (req, res) => {
             });
         }
 
+        //Validacion: Articulo no exista en la base de datos
+        const [existArt] = await pool.query('SELECT * FROM CodigoPenal WHERE N_Articulo =?', [N_Articulo], 'OR NombreArt =?', [NombreArt]);
+        if (existArt.length > 0) {
+            return res.status(400).json({
+                error: 'El articulo ya existe en la base de datos'
+            });
+        }
+
+        //Validacion: Importe y N_Articulo no contengan letras
+        if (Importe.match(/[a-zA-ZáéíóúÁÉÍÓÚñÑ]/) || N_Articulo.match(/[a-zA-ZáéíóúÁÉÍÓÚñÑ]/))
+            {
+            return res.status(400).json({
+                error: 'Los campos no pueden contener letras'
+            });
+        }
+
         //Consulta para insertar los datos del articulo donde cada "?" es un campo de la tabla "CodigoPenal" en MySQL
         const query = `
             Insert Into CodigoPenal (N_Articulo, NombreArt, Descripcion, Periodo, Importe) VALUES 
@@ -83,6 +99,52 @@ router.post('/insert', async (req, res) => {
         console.error('Error al insertar el articulo:', error);
         res.status(500).json({ 
             error: 'Error al insertar el articulo en la base de datos' 
+        });
+    }
+});
+
+// Inserta un nuevo articulo del codigo penal en MySQL
+router.post('/update', async (req, res) => {
+    try {
+        const { N_Articulo, NombreArt, Descripcion, Periodo, Importe} = req.body;
+
+        // Validamos que los campos no sean nulos
+        if (!N_Articulo || !NombreArt || !Descripcion || !Periodo || !Importe) {
+            return res.status(400).json({ 
+                error: 'Todos los campos son obligatorios' 
+            });
+        }
+
+        //Validacion: Condena no exista en la base de datos
+        const [existArt2] = await pool.query('SELECT * FROM CodigoPenal WHERE N_Articulo =?', [N_Articulo]);
+        if (!existArt2.length > 0) {
+            return res.status(400).json({
+                error: 'El articulo que se quiere actualizar no existe en la base de datos'
+            });
+        }
+
+        //Consulta para modificar los datos del articulo donde cada "?" es un campo de la tabla "CodigoPenal" en MySQL
+        const query = `
+             Update CodigoPenal SET 
+             NombreArt =?, Descripcion =?, Periodo =?, Importe =? Where N_Articulo =?
+        `;
+
+        //Arreglo con los valores pertenecientes a la consulta
+        const values = [NombreArt, Descripcion, Periodo, Importe, N_Articulo];
+
+        //Ejecucion de la consulta
+        const [] = await pool.query(query, values);
+
+        //Respuesta del servidor
+        res.status(201).json({
+            message: 'Articulo actualizado exitosamente',
+        });
+
+    } catch (error) {
+        //Si algo no se ejecuta correctamente, mostramos el error en consola 
+        console.error('Error al actualizar el articulo:', error);
+        res.status(500).json({ 
+            error: 'Error al actualizar el articulo en la base de datos' 
         });
     }
 });

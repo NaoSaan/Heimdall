@@ -52,12 +52,27 @@ router.get('/', async (req, res) => {
 // Inserta una nueva condena en MySQL
 router.post('/insert', async (req, res) => {
     try {
-        const { Fecha_I, Duracion, Importe, Estatus, id_tipocondenaFK} = req.body;
+        const {Fecha_I, Duracion, Importe, Estatus, id_tipocondenaFK} = req.body;
 
         // Validamos que los campos no sean nulos
         if (!Fecha_I || !Duracion || !Importe || !Estatus || !id_tipocondenaFK) {
             return res.status(400).json({ 
                 error: 'Todos los campos son obligatorios' 
+            });
+        }
+
+         //Validacion: Estatus sea A o P
+         if (Estatus != 'A' && Estatus != 'P') {
+            return res.status(400).json({
+                error: 'El estatus debe ser A o P'
+            })
+        }
+
+        //Validacion: Tipo de condena exista en la base de datos
+        const [existTC] = await pool.query('SELECT * FROM TipoCondena WHERE ID_TipoCondena =?', [id_tipocondenaFK]);
+        if (!existTC.length > 0) {
+            return res.status(400).json({
+                error: 'El tipo de condena no existe en la base de datos'
             });
         }
 
@@ -83,6 +98,67 @@ router.post('/insert', async (req, res) => {
         console.error('Error al insertar la condena:', error);
         res.status(500).json({ 
             error: 'Error al insertar la condena en la base de datos' 
+        });
+    }
+});
+
+// Modifica una condena en MySQL
+router.post('/update', async (req, res) => {
+    try {
+        const {ID_Condena, Fecha_I, Duracion, Importe, Estatus, id_tipocondenaFK} = req.body;
+
+        // Validamos que los campos no sean nulos
+        if (!ID_Condena ,!Fecha_I || !Duracion || !Importe || !Estatus || !id_tipocondenaFK) {
+            return res.status(400).json({ 
+                error: 'Todos los campos son obligatorios' 
+            });
+        }
+
+        //Validacion: Condena exista en la base de datos
+        const [existCondena] = await pool.query('SELECT * FROM Condena WHERE ID_Condena =?', [ID_Condena]);
+        if (!existCondena.length > 0) {
+            return res.status(400).json({
+                error: 'La condena que se quiere actualizar no existe en la base de datos'
+            });
+        }
+
+         //Validacion: Estatus sea A o P
+         if (Estatus != 'A' && Estatus != 'P') {
+            return res.status(400).json({
+                error: 'El estatus debe ser A o P'
+            })
+        }
+
+        //Validacion: Tipo de condena exista en la base de datos
+        const [existTC] = await pool.query('SELECT * FROM TipoCondena WHERE ID_TipoCondena =?', [id_tipocondenaFK]);
+        if (!existTC.length > 0) {
+            return res.status(400).json({
+                error: 'La CURP no existe en la base de datos'
+            });
+        }
+
+        //Consulta para modificar los datos de la condena donde cada "?" es un campo de la tabla "Condena" en MySQL
+        const query = `
+            Update Condena SET 
+            Fecha_I =?, Duracion =?, Importe =?, Estatus =?, id_tipocondenaFK=? Where ID_Condena =?
+        `;
+
+        //Arreglo con los valores pertenecientes a la consulta
+        const values = [Fecha_I, Duracion, Importe, Estatus, id_tipocondenaFK, ID_Condena];
+
+        //Ejecucion de la consulta
+        const [] = await pool.query(query, values);
+
+        //Respuesta del servidor
+        res.status(201).json({
+            message: 'Condena actualizada exitosamente',
+        });
+
+    } catch (error) {
+        //Si algo no se ejecuta correctamente, mostramos el error en consola 
+        console.error('Error al actualizar la condena:', error);
+        res.status(500).json({ 
+            error: 'Error al actualizar la condena en la base de datos' 
         });
     }
 });
