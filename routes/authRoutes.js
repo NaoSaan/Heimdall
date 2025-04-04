@@ -23,8 +23,8 @@ router.post('/login', async (req, res) => {
       rangoAgrupado = 'jefe';
     } else if (agente.Rango.toLowerCase() === 'comandante') {
       rangoAgrupado = 'comandante';
-    } else if (['sargento', 'detectivo'].includes(agente.Rango.toLowerCase())) {
-      rangoAgrupado = 'sargento/detectivo';
+    } else if (['sargento', 'detective'].includes(agente.Rango.toLowerCase())) {
+      rangoAgrupado = 'sargento/detective';
     } else if (agente.Rango.toLowerCase() === 'official') {
       rangoAgrupado = 'official';
     } else {
