@@ -108,7 +108,8 @@ router.post('/add', async (req, res) => {
     }
 });
 
-router.post('/delete', async (req, res) => {
+//Elimina un vehiculo de MySQL
+router.delete('/delete', async (req, res) => {
     try {
          const {Matricula} = req.body;
  
@@ -144,7 +145,7 @@ router.post('/delete', async (req, res) => {
  });
 
 // Modifica un vehiculo en MySQL
-router.post('/update', async (req, res) => {
+router.put('/update', async (req, res) => {
     try {
         //validamos todos los campos
         const validarResultado = validarDatosVehiculos(req.body);

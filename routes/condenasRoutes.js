@@ -103,7 +103,7 @@ router.post('/add', async (req, res) => {
 });
 
 // Modifica una condena en MySQL
-router.post('/update', async (req, res) => {
+router.put('/update', async (req, res) => {
     try {
 
         //validar todos los campos

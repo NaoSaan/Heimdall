@@ -3,8 +3,6 @@ const router = express.Router();
 const { pool } = require('../config/db');
 const { validarDatosCiudadanos } = require('../helpers/validarDatosCiudadanos');
 
-
-
 // Obtener datos de la tabla ciudadanos por filtro
 router.get('/', async (req, res) => {
     try {
@@ -100,8 +98,8 @@ router.post('/add', async (req, res) => {
     }
 });
 
-// Inserta un nuevo ciudadano en MySQL
-router.post('/update', async (req, res) => {
+// Actualiza un ciudadano en MySQL
+router.put('/update', async (req, res) => {
     try {
 
         //validar datos del ciudaddano
@@ -150,7 +148,7 @@ router.post('/update', async (req, res) => {
 });
 
 // Elimina un ciudadano
-router.post('/delete', async (req, res) => {
+router.delete('/delete', async (req, res) => {
     try {
         const { CURP } = req.body;
 

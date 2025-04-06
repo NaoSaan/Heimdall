@@ -4,7 +4,6 @@ const { pool } = require('../config/db.js');
 const EncryptPWD = require('../helpers/pwdEncriptar.js');
 const {validarDatosAgentes} = require('../helpers/validarDatosAgentes.js');
 
-
 //Obtener datos de la tabla por filtro
 router.get('/', async (req, res) => {
     try {
@@ -40,6 +39,7 @@ router.get('/', async (req, res) => {
         res.status(500).json({ error: 'Error al realizar la búsqueda en la base de datos' });
     }
 });
+
 // obtener datos de la tabla agentes
 router.get('/all', async (req, res) => {
     try {
@@ -97,7 +97,7 @@ router.post('/add', async (req, res) => {
     }
 })
 //actualizar agente
-router.post('/update', async (req, res) => {
+router.put('/update', async (req, res) => {
     try {
         //validar los datos
         const validarResultado = validarDatosAgentes(req.body);
@@ -143,5 +143,46 @@ router.post('/update', async (req, res) => {
         })
     }
 })
+
+//eliminar agente
+router.delete('/delete', async (req, res) => {
+    try {
+         const {N_Placa} = req.body;
+ 
+         // Validamos que el campo no sea nulo
+         if(!N_Placa){
+             return res.status(400).json({ 
+                 error: 'Se necesita un numero de placa para eliminar el agente' 
+             });
+         }
+         if (!isNaN(parseInt(N_Placa))) {
+             return res.status(400).json({
+                 error: 'El campo N_Placa debe ser una cadena de texto, no un valor numerico'
+             });
+         }
+         
+         //Consulta para eliminar los datos del agente donde "?" es un valor de la base de datos
+         const query = `
+             Delete From Agentes Where N_Placa = ?
+         `;
+ 
+        const values = [N_Placa];
+ 
+        //Ejecucion de la consulta
+        const [] = await pool.query(query, values);
+ 
+        //Respuesta del servidor
+        res.status(201).json({
+            message: 'Agente eliminado exitosamente',
+        });
+ 
+    } catch (error) {
+         //Si algo no se ejecuta correctamente, mostramos el error en consola 
+         console.error('Error al eliminar el agente:', error);
+         res.status(500).json({ 
+             error: 'Error al querer eliminar el agente de la base de datos' 
+         });
+    } 
+ });
 
 module.exports = router;

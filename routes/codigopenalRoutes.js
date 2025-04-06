@@ -106,8 +106,8 @@ router.post('/add', async (req, res) => {
     }
 });
 
-// Inserta un nuevo articulo del codigo penal en MySQL
-router.post('/update', async (req, res) => {
+//Actualiza un rticulo del codigo penal en MySQL
+router.put('/update', async (req, res) => {
     try {
 
         //validamos todos los campos
@@ -166,7 +166,7 @@ router.post('/update', async (req, res) => {
     }
 });
 
-router.post('/delete', async (req, res) => {
+router.delete('/delete', async (req, res) => {
    try {
         const {N_Articulo} = req.body;
 
