@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { pool } = require('../config/db');
+const { validarDatosCP } = require('../helpers/validarDatosCP');
 
 //Obtener todos los datos de la tabla CodigoPenal
-router.get('/All', async (req, res) => {
+router.get('/all', async (req, res) => {
     try {
         const [rows] = await pool.query('Select * From CodigoPenal');
         res.json(rows);
@@ -50,16 +51,19 @@ router.get('/', async (req, res) => {
 });
 
 // Inserta un nuevo articulo del codigo penal en MySQL
-router.post('/insert', async (req, res) => {
+router.post('/add', async (req, res) => {
     try {
-        const { N_Articulo, NombreArt, Descripcion, Periodo, Importe} = req.body;
 
-        // Validamos que los campos no sean nulos
-        if (!N_Articulo || !NombreArt || !Descripcion || !Periodo || !Importe) {
-            return res.status(400).json({ 
-                error: 'Todos los campos son obligatorios' 
-            });
+        //validamos todos los campos
+        const validationResult = validarDatosCP(req.body);
+        if (!validationResult.isValid) {
+          return res.status(400).json({
+              error: validationResult.error 
+          }) 
         }
+
+        //si todo sale bien, obtenemos los datos del articulo
+        const { N_Articulo, NombreArt, Descripcion, Periodo, Importe} = req.body;
 
         //Validacion: Articulo no exista en la base de datos
         const [existArt] = await pool.query('SELECT * FROM CodigoPenal WHERE N_Articulo =?', [N_Articulo], 'OR NombreArt =?', [NombreArt]);
@@ -69,13 +73,6 @@ router.post('/insert', async (req, res) => {
             });
         }
 
-        //Validacion: Importe y N_Articulo no contengan letras
-        if (Importe.match(/[a-zA-ZáéíóúÁÉÍÓÚñÑ]/) || N_Articulo.match(/[a-zA-ZáéíóúÁÉÍÓÚñÑ]/))
-            {
-            return res.status(400).json({
-                error: 'Los campos no pueden contener letras'
-            });
-        }
 
         //Consulta para insertar los datos del articulo donde cada "?" es un campo de la tabla "CodigoPenal" en MySQL
         const query = `
@@ -87,7 +84,13 @@ router.post('/insert', async (req, res) => {
         const values = [N_Articulo, NombreArt, Descripcion, Periodo, Importe];
 
         //Ejecucion de la consulta
-        const [] = await pool.query(query, values);
+        const [resultado] = await pool.query(query, values);
+
+        if (resultado.affectedRows === 0) {
+            return res.status(500).json({
+                error: 'No se pudo insertar el articulo en la base de datos'
+            });
+        }
 
         //Respuesta del servidor
         res.status(201).json({
@@ -106,6 +109,15 @@ router.post('/insert', async (req, res) => {
 // Inserta un nuevo articulo del codigo penal en MySQL
 router.post('/update', async (req, res) => {
     try {
+
+        //validamos todos los campos
+        const validationResult = validarDatosCP(req.body);
+        if (!validationResult.isValid) {
+          return res.status(400).json({
+              error: validationResult.error
+          })
+        }
+        //si todo sale bien, obtenemos los datos del articulo
         const { N_Articulo, NombreArt, Descripcion, Periodo, Importe} = req.body;
 
         // Validamos que los campos no sean nulos
@@ -133,8 +145,13 @@ router.post('/update', async (req, res) => {
         const values = [NombreArt, Descripcion, Periodo, Importe, N_Articulo];
 
         //Ejecucion de la consulta
-        const [] = await pool.query(query, values);
+        const [resultado] = await pool.query(query, values);
 
+        if (resultado.affectedRows === 0) {
+            return res.status(500).json({
+                error: 'No se pudo actualizar el articulo en la base de datos'
+            });
+        }
         //Respuesta del servidor
         res.status(201).json({
             message: 'Articulo actualizado exitosamente',
@@ -157,6 +174,11 @@ router.post('/delete', async (req, res) => {
         if(!N_Articulo){
             return res.status(400).json({ 
                 error: 'Se necesita un ID para eliminar el articulo' 
+            });
+        }
+        if (isNaN(parseInt(N_Articulo))) {
+            return res.status(400).json({
+                error: 'El campo N_Articulo debe ser un numero'
             });
         }
         

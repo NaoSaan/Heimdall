@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { pool } = require('../config/db');
+const {validarDatosVehiculos} = require('../helpers/validarDatosVehiculo');
 
 // Obtener datos de la tabla Vehiculos
-router.get('/All', async (req, res) => {
+router.get('/all', async (req, res) => {
     try {
         const [rows] = await pool.query('Select * From Vehiculos');
         res.json(rows);
@@ -49,30 +50,15 @@ router.get('/', async (req, res) => {
 });
 
 // Inserta un nuevo vehiculo en MySQL
-router.post('/insert', async (req, res) => {
+router.post('/add', async (req, res) => {
     try {
+        //validamos todos los campos
+        const validarResultado = validarDatosVehiculos(req.body);
+        if (!validarResultado.isValid) {
+            return res.status(400).json({ error: validarResultado.error });
+        }
+        //Obtenemos los datos del vehiculo
         const { Matricula, Modelo, Marca, Año, Tipo, Descripcion, Nacionalidad, curpFK} = req.body;
-
-        // Validamos que los campos no sean nulos
-        if (!Matricula || !Modelo || !Marca || !Año || !Tipo || !Descripcion || !Nacionalidad || !curpFK) {
-            return res.status(400).json({ 
-                error: 'Todos los campos son obligatorios' 
-            });
-        }
-
-        //Validacion: Matricula posea 7 caracteres
-        if (Matricula.length != 7) {
-            return res.status(400).json({
-                error: 'La matricula debe tener 18 caracteres'
-            })
-        }
-
-         //Validacion: curpFK posea 18 caracteres
-         if (curpFK.length != 18) {
-            return res.status(400).json({
-                error: 'La CURP debe tener 18 caracteres'
-            })
-        }
 
         //Validacion: Matricula no exista en la base de datos
         const [existVehiculo] = await pool.query('SELECT * FROM Vehiculos WHERE Matricula =?', [Matricula]);
@@ -100,7 +86,13 @@ router.post('/insert', async (req, res) => {
         const values = [Matricula, Modelo, Marca, Año, Tipo, Descripcion, Nacionalidad, curpFK];
 
         //Ejecucion de la consulta
-        const [] = await pool.query(query, values);
+        const [resultados] = await pool.query(query, values);
+
+        if (resultados.affectedRows === 0) {
+            return res.status(400).json({
+                error: 'Hubo un problema en la base de datos al agregar el vehiculo'
+            });
+        }
 
         //Respuesta del servidor
         res.status(201).json({
@@ -154,14 +146,13 @@ router.post('/delete', async (req, res) => {
 // Modifica un vehiculo en MySQL
 router.post('/update', async (req, res) => {
     try {
-        const { Matricula, Modelo, Marca, Año, Tipo, Descripcion, Nacionalidad, curpFK} = req.body;
-
-        // Validamos que los campos no sean nulos
-        if (!Matricula || !Modelo || !Marca || !Año || !Tipo || !Descripcion || !Nacionalidad || !curpFK) {
-            return res.status(400).json({ 
-                error: 'Todos los campos son obligatorios' 
-            });
+        //validamos todos los campos
+        const validarResultado = validarDatosVehiculos(req.body);
+        if (!validarResultado.isValid) {
+            return res.status(400).json({ error: validarResultado.error });
         }
+        //si todo sale bien, obtenemos los datos del vehiculo
+        const { Matricula, Modelo, Marca, Año, Tipo, Descripcion, Nacionalidad, curpFK} = req.body;
 
          //Validacion: Vehiculo exista en la base de datos
          const [existVehiculo] = await pool.query('SELECT * FROM Vehiculos WHERE Matricula =?', [Matricula]);
@@ -170,20 +161,6 @@ router.post('/update', async (req, res) => {
                  error: 'El vehiculo que se quiere actualizar no existe en la base de datos'
              });
          }
-
-        //Validacion: Matricula posea 7 caracteres
-        if (Matricula.length != 7) {
-            return res.status(400).json({
-                error: 'La matricula debe tener 18 caracteres'
-            })
-        }
-
-         //Validacion: curpFK posea 18 caracteres
-         if (curpFK.length != 18) {
-            return res.status(400).json({
-                error: 'La CURP debe tener 18 caracteres'
-            })
-        }
 
          //Validacion: CURP exista en la base de datos
          const [existCiudadano] = await pool.query('SELECT * FROM ciudadanos WHERE CURP =?', [curpFK]);
@@ -203,8 +180,13 @@ router.post('/update', async (req, res) => {
         const values = [Modelo, Marca, Año, Tipo, Descripcion, Nacionalidad, curpFK, Matricula];
 
         //Ejecucion de la consulta
-        const [] = await pool.query(query, values);
-
+        const [resultados] = await pool.query(query, values);
+        
+        if (resultados.affectedRows === 0) {
+            return res.status(400).json({
+                error: 'Hubo un problema en la base de datos al actualizar el vehiculo'
+            });
+        }
         //Respuesta del servidor
         res.status(201).json({
             message: 'Vehiculo actualizado exitosamente',

@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { pool } = require('../config/db');
+const { validarDatosCondenas } = require('../helpers/verificarDatosCondenas');
 
 // obtener datos de la tabla Condena
-router.get('/All', async (req, res) => {
+router.get('/all', async (req, res) => {
     try {
         const [rows] = await pool.query('Select * From Condena');
         res.json(rows);
@@ -50,23 +51,16 @@ router.get('/', async (req, res) => {
 });
 
 // Inserta una nueva condena en MySQL
-router.post('/insert', async (req, res) => {
+router.post('/add', async (req, res) => {
     try {
-        const {Fecha_I, Duracion, Importe, Estatus, id_tipocondenaFK} = req.body;
-
-        // Validamos que los campos no sean nulos
-        if (!Fecha_I || !Duracion || !Importe || !Estatus || !id_tipocondenaFK) {
-            return res.status(400).json({ 
-                error: 'Todos los campos son obligatorios' 
+        //validar todos los campos
+        const verificarRespuesta = validarDatosCondenas(req.body);
+        if (!verificarRespuesta.isValid) {
+            return res.status(400).json({
+                error: verificarRespuesta.error
             });
         }
-
-         //Validacion: Estatus sea A o P
-         if (Estatus != 'A' && Estatus != 'P') {
-            return res.status(400).json({
-                error: 'El estatus debe ser A o P'
-            })
-        }
+        const {Fecha_I, Duracion, Importe, Estatus, id_tipocondenaFK} = req.body;
 
         //Validacion: Tipo de condena exista en la base de datos
         const [existTC] = await pool.query('SELECT * FROM TipoCondena WHERE ID_TipoCondena =?', [id_tipocondenaFK]);
@@ -86,7 +80,13 @@ router.post('/insert', async (req, res) => {
         const values = [Fecha_I, Duracion, Importe, Estatus, id_tipocondenaFK];
 
         //Ejecucion de la consulta
-        const [] = await pool.query(query, values);
+        const [resultado] = await pool.query(query, values);
+
+        if(resultado.affectedRows === 0) {
+            return res.status(500).json({
+                error: 'Error al insertar la condena en la base de datos'
+            });
+        }
 
         //Respuesta del servidor
         res.status(201).json({
@@ -105,6 +105,15 @@ router.post('/insert', async (req, res) => {
 // Modifica una condena en MySQL
 router.post('/update', async (req, res) => {
     try {
+
+        //validar todos los campos
+        const verificarRespuesta = validarDatosCondenas(req.body);
+        if (!verificarRespuesta.isValid) {
+            return res.status(400).json({
+                error: verificarRespuesta.error
+            });
+        }
+        //si todo sale bien, obtenemos los datos de la condena
         const {ID_Condena, Fecha_I, Duracion, Importe, Estatus, id_tipocondenaFK} = req.body;
 
         // Validamos que los campos no sean nulos
@@ -120,13 +129,6 @@ router.post('/update', async (req, res) => {
             return res.status(400).json({
                 error: 'La condena que se quiere actualizar no existe en la base de datos'
             });
-        }
-
-         //Validacion: Estatus sea A o P
-         if (Estatus != 'A' && Estatus != 'P') {
-            return res.status(400).json({
-                error: 'El estatus debe ser A o P'
-            })
         }
 
         //Validacion: Tipo de condena exista en la base de datos
@@ -147,7 +149,13 @@ router.post('/update', async (req, res) => {
         const values = [Fecha_I, Duracion, Importe, Estatus, id_tipocondenaFK, ID_Condena];
 
         //Ejecucion de la consulta
-        const [] = await pool.query(query, values);
+        const [resultado] = await pool.query(query, values);
+
+        if(resultado.affectedRows === 0) {
+            return res.status(500).json({
+                error: 'Error al actualizar la condena en la base de datos'
+            });
+        }
 
         //Respuesta del servidor
         res.status(201).json({

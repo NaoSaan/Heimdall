@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { pool } = require('../config/db');
+const {validarByC} = require('../helpers/validarByC');
 
 //obtener datos de la tabla GeneraB
-router.get('/All', async (req, res) => {
+router.get('/all', async (req, res) => {
     try {
         const [rows] = await pool.query('Select * From GeneraB');
         res.json(rows);
@@ -49,23 +50,16 @@ router.get('/', async (req, res) => {
 });
 
 // Inserta una nueva busqueda en MySQL
-router.post('/insert', async (req, res) => {
+router.post('/add', async (req, res) => {
     try {
+        //validamos todos los campos
+        const validarResultados = validarByC(req.body);
+        if (validarResultados.isValid === false) {
+            return res.status(400).json({ error: validarResultados.error });
+        }
+        //si todo esta correcto, procedemos a insertar los datos
         const { Folio_BC, Clasi, Cantidad, curpFK, id_condenaFK} = req.body;
 
-        // Validamos que los campos no sean nulos
-        if (!Folio_BC || !Clasi || !Cantidad || !curpFK || !id_condenaFK) {
-            return res.status(400).json({ 
-                error: 'Todos los campos son obligatorios' 
-            });
-        }
-
-        //Validacion: Clasificacion sea M, A o B
-        if (Clasi != 'M' && Clasi != 'A' && Clasi!= 'B') {
-            return res.status(400).json({
-                error: 'La clasificacion debe ser M, A o B'
-            })
-        }
 
         //Validacion: CURP exista en la base de datos
         const [existCiudadano] = await pool.query('SELECT * FROM ciudadanos WHERE CURP =?', [curpFK]);
@@ -93,7 +87,13 @@ router.post('/insert', async (req, res) => {
         const values = [Folio_BC, Clasi, Cantidad, curpFK, id_condenaFK];
 
         //Ejecucion de la consulta
-        const [] = await pool.query(query, values);
+        const [resultados] = await pool.query(query, values);
+
+        if (resultados.affectedRows === 0) {
+            return res.status(400).json({
+                error: 'Huno error al insertar la busqueda en la base de datos'
+            }); 
+        }
 
         //Respuesta del servidor
         res.status(201).json({
@@ -112,14 +112,13 @@ router.post('/insert', async (req, res) => {
 // Modifica busqueda en MySQL
 router.post('/update', async (req, res) => {
     try {
-        const { Folio_BC, Clasi, Cantidad, curpFK, id_condenaFK} = req.body;
-
-        // Validamos que los campos no sean nulos
-        if (!Folio_BC || !Clasi || !Cantidad || !curpFK || !id_condenaFK) {
-            return res.status(400).json({ 
-                error: 'Todos los campos son obligatorios' 
-            });
+        //valiadamos todos los campos
+        const validarResultados = validarByC(req.body);
+        if (validarResultados.isValid === false) {
+            return res.status(400).json({ error: validarResultados.error });
         }
+        //si todo esta correcto, procedemos a actualizar los datos
+        const { Folio_BC, Clasi, Cantidad, curpFK, id_condenaFK} = req.body;
 
         //Validacion: Busqueda exista en la base de datos
         const [existBusqueda] = await pool.query('SELECT * FROM GeneraB WHERE Folio_BC =?', [Folio_BC]);
@@ -127,13 +126,6 @@ router.post('/update', async (req, res) => {
             return res.status(400).json({
                 error: 'La busqueda que se quiere actualizar no existe en la base de datos'
             });
-        }
-
-         //Validacion: Clasificacion sea M, A o B
-         if (Clasi != 'M' && Clasi != 'A' && Clasi!= 'B') {
-            return res.status(400).json({
-                error: 'La clasificacion debe ser M, A o B'
-            })
         }
 
         //Validacion: CURP exista en la base de datos
@@ -162,7 +154,13 @@ router.post('/update', async (req, res) => {
         const values = [Clasi, Cantidad, curpFK, id_condenaFK, Folio_BC];
 
         //Ejecucion de la consulta
-        const [] = await pool.query(query, values);
+        const [resultados] = await pool.query(query, values);
+
+        if (resultados.affectedRows === 0) {
+            return res.status(400).json({
+                error: 'Huno error al actualizar la busqueda en la base de datos'
+            });
+        }
 
         //Respuesta del servidor
         res.status(201).json({

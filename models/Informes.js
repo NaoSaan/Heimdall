@@ -1,22 +1,27 @@
 const mongoose = require('mongoose');
 
 const informeSchema = new mongoose.Schema({
+  _id: { type: String, required: true },
   Estatus: { type: String, required: true },
-  Informe_Involucrados: { 
+  Informe_Involucrados: [{ 
     CURP: { type: String, required: true },
-    Articulos:{
+    Articulos:[{
         Num_Art:{type: String, required: true},
-    },
+        _id: false,
+    }],
     Id_Condena: {type: String, required: true},
-  },
-  Informe_Agentes: {
+    _id: false,
+  }],
+  Informe_Agentes: [{
     Num_Placa: { type: String, required: true },
-  },
+    _id: false,
+  }],
   Fecha_Informe: { type: Date, required: true },
   Descripcion: { type: String, required: true },
-  Foto:{
+  Foto:[{
     URL: { type: String, required: true },
-  },
+    _id: false,
+  }],
   Direccion: {
     Calle: { type: String, required: true },
     Colonia: { type: String, required: true },

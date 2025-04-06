@@ -1,9 +1,48 @@
 const express = require('express');
 const router = express.Router();
 const { pool } = require('../config/db');
+const { validarDatosCiudadanos } = require('../helpers/validarDatosCiudadanos');
+
+
+
+// Obtener datos de la tabla ciudadanos por filtro
+router.get('/', async (req, res) => {
+    try {
+        const filtro = req.query.by;
+
+        if (!filtro) {
+            return res.status(400).json({ error: 'Debe proporcionar un texto para buscar' });
+        }
+
+        //Obtenermos todas las columnas de la tabla;
+        const [columns] = await pool.query('SHOW COLUMNS FROM ciudadanos');
+
+        //Creamos la condicion WHERE para cada columna
+        const condicion = columns
+            .map(column => `${column.Field} LIKE ?`)
+            .join(' OR ');
+
+        // Creamos la consulta
+        const query = `SELECT * FROM ciudadanos WHERE ${condicion}`;
+
+        // Preparamos los valores para la consulta
+        const values = Array(columns.length).fill(`%${filtro}%`);
+
+        const [rows] = await pool.query(query, values);
+
+        if (rows.length === 0) {
+            return res.json({ message: 'No se encontraron resultados para esta búsqueda' });
+        }
+
+        res.json(rows);
+    } catch (error) {
+        console.error('Error al realizar la búsqueda', error);
+        res.status(500).json({ error: 'Error al realizar la búsqueda en la base de datos' });
+    }
+});
 
 // Obtener datos de la tabla ciudadanos
-router.get('/All', async (req, res) => {
+router.get('/all', async (req, res) => {
     try {
         const [rows] = await pool.query('Select * From Ciudadanos');
         res.json(rows);
@@ -12,82 +51,20 @@ router.get('/All', async (req, res) => {
         res.status(500).json({ error: 'Error al intentar traer la informacion de la base de datos' });
     }
 });
-// Obtener datos de la tabla ciudadanos por filtro
-router.get('/', async (req, res) => {
-    try {
-        const filtro = req.query.by;
-        
-        if (!filtro) {
-            return res.status(400).json({ error: 'Debe proporcionar un texto para buscar' });
-        }
-
-        //Obtenermos todas las columnas de la tabla;
-        const [columns] = await pool.query('SHOW COLUMNS FROM ciudadanos');
-        
-        //Creamos la condicion WHERE para cada columna
-        const condicion = columns
-            .map(column => `${column.Field} LIKE ?`)
-            .join(' OR ');
-        
-        // Creamos la consulta
-        const query = `SELECT * FROM ciudadanos WHERE ${condicion}`;
-        
-        // Preparamos los valores para la consulta
-        const values = Array(columns.length).fill(`%${filtro}%`);
-
-        const [rows] = await pool.query(query, values);
-        
-        if (rows.length === 0) {
-            return res.json({ message: 'No se encontraron resultados para esta búsqueda' });
-        }
-        
-        res.json(rows);
-    } catch (error) {
-        console.error('Error al realizar la búsqueda', error);
-        res.status(500).json({ error: 'Error al realizar la búsqueda en la base de datos' });
-    }
-});
 
 // Inserta un nuevo ciudadano en MySQL
-router.post('/insert', async (req, res) => {
+router.post('/add', async (req, res) => {
     try {
-        const { CURP, Nombre, APaterno, AMaterno, FechaNac, Sexo, Direccion, Foto, Vive} = req.body;
-
-        // Validamos que los campos no sean nulos
-        if (!Nombre || !APaterno || !AMaterno ||!FechaNac ||!Sexo ||!Direccion ||!Foto ||!Vive) {
-            return res.status(400).json({ 
-                error: 'Todos los campos son obligatorios' 
+        //validamos los datos del ciudadano
+        const validationResult = validarDatosCiudadanos(req.body);
+        if (!validationResult.isValid) {
+            return res.status(400).json({
+                error: validationResult.error
             });
         }
 
-        //Validacion: CURP posea 18 caracteres
-        if (CURP.length != 18) {
-            return res.status(400).json({
-                error: 'La CURP debe tener 18 caracteres'
-            })
-        }
-
-         //Validacion: Sexo sea M o F
-         if (Sexo != 'M' && Sexo != 'F') {
-            return res.status(400).json({
-                error: 'El sexo debe ser M o F'
-            })
-        }
-
-        //Validacion: Vive sea S o N
-        if (Vive!= 'S' && Vive!= 'N') {
-            return res.status(400).json({
-                error: 'El campo "Vive" debe ser S o N'
-            })  
-        }
-
-        //Validacion: En nombre no se permitan numeros
-        if (Nombre.match(/\d/) || APaterno.match(/\d/), AMaterno.match(/\d/)) {
-            //Match devuelve null si no hay números, o un array con coincidencias si los hay.
-            return res.status(400).json({
-                error: 'El nombre y/o apellidos no pueden contener numeros'
-            })
-        }
+        // si todo salio bien desestructurisamos los datos del ciudadano
+        const { CURP, Nombre, APaterno, AMaterno, FechaNac, Sexo, Direccion, Foto, Vive } = req.body;
 
         //Validacion: CURP no exista en la base de datos
         const [existCiudadano] = await pool.query('SELECT * FROM ciudadanos WHERE CURP =?', [CURP]);
@@ -117,8 +94,8 @@ router.post('/insert', async (req, res) => {
     } catch (error) {
         //Si algo no se ejecuta correctamente, mostramos el error en consola 
         console.error('Error al insertar el ciudadano:', error);
-        res.status(500).json({ 
-            error: 'Error al insertar el ciudadano en la base de datos' 
+        res.status(500).json({
+            error: 'Error al insertar el ciudadano en la base de datos'
         });
     }
 });
@@ -126,50 +103,24 @@ router.post('/insert', async (req, res) => {
 // Inserta un nuevo ciudadano en MySQL
 router.post('/update', async (req, res) => {
     try {
-        const { CURP, Nombre, APaterno, AMaterno, FechaNac, Sexo, Direccion, Foto, Vive} = req.body;
 
-        // Validamos que los campos no sean nulos
-        if (!Nombre || !APaterno || !AMaterno ||!FechaNac ||!Sexo ||!Direccion ||!Foto ||!Vive) {
-            return res.status(400).json({ 
-                error: 'Todos los campos son obligatorios' 
+        //validar datos del ciudaddano
+        const validationResult = validarDatosCiudadanos(req.body);
+        if (!validationResult.isValid) {
+            return res.status(400).json({
+                error: validationResult.error
             });
         }
 
-        //Validacion: CURP exista en la base de datos
+        //si todo esta correcto desestructurisamos los datos del ciudadano
+        const { CURP, Nombre, APaterno, AMaterno, FechaNac, Sexo, Direccion, Foto, Vive } = req.body;
+
+        //Validacion: CURP no exista en la base de datos
         const [existCiudadano] = await pool.query('SELECT * FROM ciudadanos WHERE CURP =?', [CURP]);
-        if (!existCiudadano.length > 0) {
+        if (existCiudadano.length <= 0) {
             return res.status(400).json({
-                error: 'El ciudadano que se quiere actualizar no existe en la base de datos'
+                error: 'La CURP no existe en la base de datos'
             });
-        }
-
-        //Validacion: CURP posea 18 caracteres
-        if (CURP.length != 18) {
-            return res.status(400).json({
-                error: 'La CURP debe tener 18 caracteres'
-            })
-        }
-
-         //Validacion: Sexo sea M o F
-         if (Sexo != 'M' && Sexo != 'F') {
-            return res.status(400).json({
-                error: 'El sexo debe ser M o F'
-            })
-        }
-
-        //Validacion: Vive sea S o N
-        if (Vive!= 'S' && Vive!= 'N') {
-            return res.status(400).json({
-                error: 'El campo "Vive" debe ser S o N'
-            })  
-        }
-
-        //Validacion: En nombre no se permitan numeros
-        if (Nombre.match(/\d/) || APaterno.match(/\d/), AMaterno.match(/\d/)) {
-            //Match devuelve null si no hay números, o un array con coincidencias si los hay.
-            return res.status(400).json({
-                error: 'El nombre y/o apellidos no pueden contener numeros'
-            })
         }
 
         //Consulta para modificar los datos del ciudadano donde cada "?" es un campo de la tabla "Ciudadanos" en MySQL
@@ -192,45 +143,48 @@ router.post('/update', async (req, res) => {
     } catch (error) {
         //Si algo no se ejecuta correctamente, mostramos el error en consola 
         console.error('Error al actualizar el ciudadano:', error);
-        res.status(500).json({ 
-            error: 'Error al actualizar el ciudadano en la base de datos' 
+        res.status(500).json({
+            error: 'Error al actualizar el ciudadano en la base de datos'
         });
     }
 });
 
+// Elimina un ciudadano
 router.post('/delete', async (req, res) => {
     try {
-         const {CURP} = req.body;
-        
-         // Validamos que el campo no sea nulo
-         if(!CURP){
-             return res.status(400).json({ 
-                 error: 'Se necesita una CURP para eliminar el ciudadano' 
-             });
-         }
+        const { CURP } = req.body;
+
+        // Validamos que el campo no sea nulo
+        if (!CURP) {
+            return res.status(400).json({
+                error: 'Se necesita una CURP para eliminar el ciudadano'
+            });
+        }
 
         //Consulta para eliminar los datos del ciudadano donde "?" es un valor de la base de datos
-         const query = `
+        const query = `
              Delete From Ciudadanos Where CURP = ?
          `;
- 
+
         const values = [CURP];
- 
+
         //Ejecucion de la consulta
         const [] = await pool.query(query, values);
- 
+
         //Respuesta del servidor
         res.status(201).json({
             message: 'Ciudadano eliminado exitosamente',
         });
- 
+
     } catch (error) {
-         //Si algo no se ejecuta correctamente, mostramos el error en consola 
-         console.error('Error al eliminar el ciudadano:', error);
-         res.status(500).json({ 
-             error: 'Error al querer eliminar el ciudadano de la base de datos' 
-         });
-    } 
- });
+        //Si algo no se ejecuta correctamente, mostramos el error en consola 
+        console.error('Error al eliminar el ciudadano:', error);
+        res.status(500).json({
+            error: 'Error al querer eliminar el ciudadano de la base de datos'
+        });
+    }
+});
 
 module.exports = router;
+
+
