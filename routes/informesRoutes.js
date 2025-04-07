@@ -85,7 +85,7 @@ router.post('/add', async (req, res) => {
   }
 });
 // Aactualizar un informe
-router.post('/update', async (req, res) => {
+router.put('/update', async (req, res) => {
   try {
     const id = req.body._id; // ID del documento a actualizar
 

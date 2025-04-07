@@ -65,10 +65,13 @@ Create table CodigoPenal(
 	Importe decimal not null
 );
 
- alter table Vehiculos add foreign key (curpFK) references Ciudadanos(CURP);
- alter table Condena add foreign key (id_tipocondenaFK) references TipoCondena(ID_TipoCondena);
- alter table GeneraB add foreign key (id_condenaFK) references Condena(ID_Condena);
- alter table GeneraB add foreign key (curpFK) references Ciudadanos(CURP);
+alter table Vehiculos add foreign key (curpFK) references Ciudadanos(CURP);
+
+alter table Condena add foreign key (id_tipocondenaFK) references TipoCondena(ID_TipoCondena);
+
+alter table GeneraB add foreign key (id_condenaFK) references Condena(ID_Condena);
+
+alter table GeneraB add foreign key (curpFK) references Ciudadanos(CURP);
 
 insert into Ciudadanos (CURP, Nombre, APaterno, AMaterno, FechaNac, Sexo, Direccion, Foto, Vive) values
 ('MEFL030925HDGDRSA1', 'Luis', 'Medrano', 'Fernández', '2003-09-25', 'M', 'Calle 40 1619', 'Ruta/Foto', 'S'),
