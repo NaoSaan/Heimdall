@@ -25,9 +25,9 @@ app.use('/api/agentes',require('./routes/AgentesRoutes.js'));
 //RUTA PARA CONDENAS
 app.use('/api/condenas',require('./routes/condenasRoutes.js'));
 //RUTA PARA GENERAB
-app.use('/api/byc',require('./routes/generabRoutes.js'));
+app.use('/api/byc',require('./routes/GenerabRoutes.js'));
 //RUTA PARA VEHICULOS
-app.use('/api/vehiculos',require('./routes/vehiculosRoutes.js'));
+app.use('/api/vehiculos',require('./routes/VehiculosRoutes.js'));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT,() => console.log(`Servidor corriendo en el puerto ${PORT}`));
