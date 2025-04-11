@@ -3,6 +3,7 @@ const cros = require("cors");
 const dotenv = require("dotenv");
 const { pool, conectarMongoDB } = require("./config/db");
 dotenv.config();
+const router = express.Router();
 
 const app = express();
 app.use(cros());
@@ -12,7 +13,7 @@ app.use(express.json());
 conectarMongoDB();
 
 //RUTAS
-app.use("/", (req, res) => {
+app.get("/", (req, res) => {
   res.send("¡API funcionando correctamente!");
 });
 //RUTA PARA LOGIN DE AGENTES
@@ -34,3 +35,5 @@ app.use("/api/vehiculos", require("./routes/VehiculosRoutes.js"));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Servidor corriendo en el puerto ${PORT}`));
+
+module.exports = router;
