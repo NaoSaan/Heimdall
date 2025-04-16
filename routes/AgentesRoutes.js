@@ -256,7 +256,7 @@ router.get("/profile",check.auth, async (req, res) => {
   }
 
   res.status(200).json({
-    message: "Agente encontrado exitosamente",
+    message: "success",
     data: existingAgente,
   });
 })
