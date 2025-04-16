@@ -228,4 +228,37 @@ router.delete("/delete", check.auth, async (req, res) => {
   }
 });
 
+router.get("/profile",check.auth, async (req, res) => {
+  //recibir los parametros por el body
+  const { N_Placa } = req.body;
+
+  // Validamos que el campo no sea nulo
+  if (!N_Placa) {
+    return res.status(400).json({
+      error: "Se necesita un numero de placa para eliminar el agente",
+    });
+  }
+  if (!isNaN(parseInt(N_Placa))) {
+    return res.status(400).json({
+      error:
+        "El campo N_Placa debe ser una cadena de texto, no un valor numerico",
+    });
+  }
+
+  const [existingAgente] = await pool.query(
+    "SELECT * FROM Agentes WHERE N_Placa = ?",
+    [N_Placa]
+  );
+  if (existingAgente.length === 0) {
+    return res.status(400).json({
+      error: "El N_Placa no existe en la base de datos",
+    });
+  }
+  console.log(existingAgente);
+  res.status(200).json({
+    message: "Agente encontrado exitosamente",
+    data: existingAgente,
+  });
+})
+
 module.exports = router;
