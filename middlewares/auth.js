@@ -6,7 +6,7 @@ const secret = process.env.JWT_SECRET;
 // MIDDLEWARE de autenticacion
 exports.auth = (req, res, next) => {
   // Comprobar si me llega la cabecera de auth
-  if (!req.body.authorization) {
+  if (!req.headers.authorization) {
     return res.status(403).send({
       status: "error",
       message: "La petición no tiene la body de autenticación",
@@ -14,7 +14,7 @@ exports.auth = (req, res, next) => {
   }
 
   // limpiar el token
-  let token = req.header.authorization.replace(/['"]+/g, "");
+  let token = req.headers.authorization.replace(/['"]+/g, "");
 
   // Decodificar token
   try {
