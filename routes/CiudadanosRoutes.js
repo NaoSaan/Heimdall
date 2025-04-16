@@ -220,7 +220,7 @@ router.delete("/delete", async (req, res) => {
       });
     }
     const [existeVHE] = await pool.query(
-      "SELECT * FROM Vehiculos WHERE CURP = ?",
+      "SELECT * FROM Vehiculos WHERE curpFK = ?",
       [CURP]
     );
     if (existeVHE.length === 0) {
