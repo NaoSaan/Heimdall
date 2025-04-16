@@ -3,7 +3,7 @@ const router = express.Router();
 const { pool } = require("../config/db.js");
 const EncryptPWD = require("../helpers/pwdEncriptar.js");
 const { validarDatosAgentes } = require("../helpers/validarDatosAgentes.js");
-const check = require("../middlewares/auth.js")
+const check = require("../middlewares/auth.js");
 
 //Obtener datos de la tabla por filtro
 router.get("/", async (req, res) => {
@@ -228,7 +228,7 @@ router.delete("/delete", check.auth, async (req, res) => {
   }
 });
 
-router.get("/profile",check.auth, async (req, res) => {
+router.post("/profile", check.auth, async (req, res) => {
   //recibir los parametros por el body
   const { N_Placa } = req.body;
 
@@ -259,6 +259,6 @@ router.get("/profile",check.auth, async (req, res) => {
     message: "success",
     data: existingAgente,
   });
-})
+});
 
 module.exports = router;
