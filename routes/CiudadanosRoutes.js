@@ -210,6 +210,26 @@ router.delete("/delete", async (req, res) => {
       });
     }
 
+    const [existe] = await pool.query(
+      "SELECT * FROM Ciudadanos WHERE CURP = ?",
+      [CURP]
+    );
+    if (existe.length === 0) {
+      return res.status(400).json({
+        error: "La CURP no existe en la base de datos",
+      });
+    }
+    const [existeVHE] = await pool.query(
+      "SELECT * FROM Vehiculos WHERE CURP = ?",
+      [CURP]
+    );
+    if (existe.length === 0) {
+      return res.status(400).json({
+        error:
+          "La CURP tiene vehiculos relacionados, elimina antes los vehiculos",
+      });
+    }
+
     //Consulta para eliminar los datos del ciudadano donde "?" es un valor de la base de datos
     const query = `
              Delete From Ciudadanos Where CURP = ?
