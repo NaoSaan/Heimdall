@@ -254,7 +254,7 @@ router.get("/profile",check.auth, async (req, res) => {
       error: "El N_Placa no existe en la base de datos",
     });
   }
-  console.log(existingAgente);
+
   res.status(200).json({
     message: "Agente encontrado exitosamente",
     data: existingAgente,
