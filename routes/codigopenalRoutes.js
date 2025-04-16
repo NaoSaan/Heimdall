@@ -10,11 +10,9 @@ router.get("/all", async (req, res) => {
     res.json(rows);
   } catch (error) {
     console.error("Error al realizar la consulta", error);
-    res
-      .status(500)
-      .json({
-        error: "Error al intentar traer la informacion de la base de datos",
-      });
+    res.status(500).json({
+      error: "Error al intentar traer la informacion de la base de datos",
+    });
   }
 });
 
@@ -193,6 +191,16 @@ router.delete("/delete", async (req, res) => {
     if (isNaN(parseInt(N_Articulo))) {
       return res.status(400).json({
         error: "El campo N_Articulo debe ser un numero",
+      });
+    }
+
+    const [existe] = await pool.query(
+      "SELECT * FROM CodigoPenal WHERE N_Articulo = ?",
+      [N_Articulo]
+    );
+    if (existe.length === 0) {
+      return res.status(400).json({
+        error: "El Numero de Articulo no existe en la base de datos",
       });
     }
 

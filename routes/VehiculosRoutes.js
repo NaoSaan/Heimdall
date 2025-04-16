@@ -10,11 +10,9 @@ router.get("/all", async (req, res) => {
     res.json(rows);
   } catch (error) {
     console.error("Error al realizar la consulta", error);
-    res
-      .status(500)
-      .json({
-        error: "Error al intentar traer la informacion de la base de datos",
-      });
+    res.status(500).json({
+      error: "Error al intentar traer la informacion de la base de datos",
+    });
   }
 });
 //Obtener datos de la tabla Vehiculos por filtro
@@ -150,6 +148,23 @@ router.delete("/delete", async (req, res) => {
     if (!Matricula) {
       return res.status(400).json({
         error: "Se necesita una matricula para eliminar el vehiculo",
+      });
+    }
+
+    //Validacion: Matricula posea 7 caracteres
+    if (Matricula.length != 7) {
+      return res.status(400).json({
+        error: "La matricula debe tener 7 caracteres",
+      });
+    }
+
+    const [existe] = await pool.query(
+      "SELECT * FROM Vehiculos WHERE Matricula = ?",
+      [Matricula]
+    );
+    if (existe.length === 0) {
+      return res.status(400).json({
+        error: "EL vehiculo no existe en la base de datos",
       });
     }
 
