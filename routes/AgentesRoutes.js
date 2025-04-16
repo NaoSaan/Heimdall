@@ -16,7 +16,7 @@ router.get("/", async (req, res) => {
     }
 
     //Obtenermos todas las columnas de la tabla;
-    const [columns] = await pool.query("SHOW COLUMNS FROM agentes");
+    const [columns] = await pool.query("SHOW COLUMNS FROM Agentes");
 
     //Creamos la condicion WHERE para cada columna
     const condicion = columns
@@ -24,7 +24,7 @@ router.get("/", async (req, res) => {
       .join(" OR ");
 
     // Creamos la consulta
-    const query = `SELECT * FROM agentes WHERE ${condicion}`;
+    const query = `SELECT * FROM Agentes WHERE ${condicion}`;
 
     // Preparamos los valores para la consulta
     const values = Array(columns.length).fill(`%${filtro}%`);
@@ -53,11 +53,9 @@ router.get("/all", async (req, res) => {
     res.json(rows);
   } catch (error) {
     console.error("Error al realizar la consulta", error);
-    res
-      .status(500)
-      .json({
-        error: "Error al intentar traer la informacion de la base de datos",
-      });
+    res.status(500).json({
+      error: "Error al intentar traer la informacion de la base de datos",
+    });
   }
 });
 //Crear agente
@@ -148,7 +146,7 @@ router.put("/update", async (req, res) => {
 
     //Realizamos el update
     //creamos la consulta
-    const query = `UPDATE agentes SET Nombre = ?, APaterno = ?, AMaterno = ?, Sexo = ?, Dept = ?, Rango = ?, pwd = ? WHERE N_Placa = ?`;
+    const query = `UPDATE Agentes SET Nombre = ?, APaterno = ?, AMaterno = ?, Sexo = ?, Dept = ?, Rango = ?, pwd = ? WHERE N_Placa = ?`;
     //creamos los valores
     const values = [
       Nombre,
@@ -193,6 +191,16 @@ router.delete("/delete", async (req, res) => {
       return res.status(400).json({
         error:
           "El campo N_Placa debe ser una cadena de texto, no un valor numerico",
+      });
+    }
+
+    const [existingAgente] = await pool.query(
+      "SELECT * FROM Agentes WHERE N_Placa = ?",
+      [N_Placa]
+    );
+    if (existingAgente.length === 0) {
+      return res.status(400).json({
+        error: "El N_Placa no existe en la base de datos",
       });
     }
 
