@@ -3,6 +3,7 @@ const router = express.Router();
 const { pool } = require("../config/db.js");
 const EncryptPWD = require("../helpers/pwdEncriptar.js");
 const { validarDatosAgentes } = require("../helpers/validarDatosAgentes.js");
+const check = require("../middlewares/auth.js")
 
 //Obtener datos de la tabla por filtro
 router.get("/", async (req, res) => {
@@ -47,7 +48,7 @@ router.get("/", async (req, res) => {
 });
 
 // obtener datos de la tabla agentes
-router.get("/all", async (req, res) => {
+router.get("/all", check.auth, async (req, res) => {
   try {
     const [rows] = await pool.query("Select * From Agentes");
     res.json(rows);
@@ -59,7 +60,7 @@ router.get("/all", async (req, res) => {
   }
 });
 //Crear agente
-router.post("/add", async (req, res) => {
+router.post("/add", check.auth, async (req, res) => {
   try {
     //validar los campos
     const validarResultado = validarDatosAgentes(req.body);
@@ -116,7 +117,7 @@ router.post("/add", async (req, res) => {
   }
 });
 //actualizar agente
-router.put("/update", async (req, res) => {
+router.put("/update", check.auth, async (req, res) => {
   try {
     //validar los datos
     const validarResultado = validarDatosAgentes(req.body);
@@ -177,7 +178,7 @@ router.put("/update", async (req, res) => {
 });
 
 //eliminar agente
-router.delete("/delete", async (req, res) => {
+router.delete("/delete", check.auth, async (req, res) => {
   try {
     const { N_Placa } = req.body;
 

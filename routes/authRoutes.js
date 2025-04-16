@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { pool } = require('../config/db');
-const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const { createToken } = require('../services/jwt');
 
 router.post('/login', async (req, res) => {
   try {
@@ -14,8 +14,8 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Credenciales inválidas' });
     }
 
-    // Generar el token JWT
-    const token = jwt.sign({ N_Placa: agente.N_Placa, Rango: agente.Rango }, process.env.JWT_SECRET, { expiresIn: '2h' });
+    // Generar el token JWT usando el servicio
+    const token = createToken(agente);
 
     // Agrupar rangos
     let rangoAgrupado;
