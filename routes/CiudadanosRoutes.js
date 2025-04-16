@@ -223,7 +223,7 @@ router.delete("/delete", async (req, res) => {
       "SELECT * FROM Vehiculos WHERE curpFK = ?",
       [CURP]
     );
-    if (existeVHE.length === 0) {
+    if (existeVHE.length > 0) {
       return res.status(400).json({
         error:
           "La CURP tiene vehiculos relacionados, elimina antes los vehiculos",
