@@ -15,7 +15,7 @@ router.get("/", async (req, res) => {
     }
 
     //Obtenermos todas las columnas de la tabla;
-    const [columns] = await pool.query("SHOW COLUMNS FROM ciudadanos");
+    const [columns] = await pool.query("SHOW COLUMNS FROM Ciudadanos");
 
     //Creamos la condicion WHERE para cada columna
     const condicion = columns
@@ -23,7 +23,7 @@ router.get("/", async (req, res) => {
       .join(" OR ");
 
     // Creamos la consulta
-    const query = `SELECT * FROM ciudadanos WHERE ${condicion}`;
+    const query = `SELECT * FROM Ciudadanos WHERE ${condicion}`;
 
     // Preparamos los valores para la consulta
     const values = Array(columns.length).fill(`%${filtro}%`);
@@ -52,11 +52,9 @@ router.get("/all", async (req, res) => {
     res.json(rows);
   } catch (error) {
     console.error("Error al realizar la consulta", error);
-    res
-      .status(500)
-      .json({
-        error: "Error al intentar traer la informacion de la base de datos",
-      });
+    res.status(500).json({
+      error: "Error al intentar traer la informacion de la base de datos",
+    });
   }
 });
 
@@ -156,7 +154,7 @@ router.put("/update", async (req, res) => {
 
     //Validacion: CURP no exista en la base de datos
     const [existCiudadano] = await pool.query(
-      "SELECT * FROM ciudadanos WHERE CURP =?",
+      "SELECT * FROM Ciudadanos WHERE CURP =?",
       [CURP]
     );
     if (existCiudadano.length <= 0) {
@@ -193,7 +191,7 @@ router.put("/update", async (req, res) => {
     });
   } catch (error) {
     //Si algo no se ejecuta correctamente, mostramos el error en consola
-    console.error("Error al actualizar el ciudadano:", error);
+    console.error("Error al actualizar el Ciudadano:", error);
     res.status(500).json({
       error: "Error al actualizar el ciudadano en la base de datos",
     });
