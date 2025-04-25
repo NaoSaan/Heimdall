@@ -28,7 +28,7 @@ router.get("/", async (req, res) => {
     }
 
     //Obtenermos todas las columnas de la tabla;
-    const [columns] = await pool.query("SHOW COLUMNS FROM Codigopenal");
+    const [columns] = await pool.query("SHOW COLUMNS FROM CodigoPenal");
 
     //Creamos la condicion WHERE para cada columna
     const condicion = columns
@@ -36,7 +36,7 @@ router.get("/", async (req, res) => {
       .join(" OR ");
 
     // Creamos la consulta
-    const query = `SELECT * FROM Codigopenal WHERE ${condicion}`;
+    const query = `SELECT * FROM CodigoPenal WHERE ${condicion}`;
 
     // Preparamos los valores para la consulta
     const values = Array(columns.length).fill(`%${filtro}%`);
@@ -70,7 +70,7 @@ router.post("/add", async (req, res) => {
     }
 
     //si todo sale bien, obtenemos los datos del articulo
-    const { N_Articulo, NombreArt, Descripcion, Periodo, Importe } = req.body;
+    const { N_Articulo, NombreArt, Descripcion, Periodo_I_Dias,Periodo_F_Dias, Importe } = req.body;
 
     //Validacion: Articulo no exista en la base de datos
     const [existArt] = await pool.query(
@@ -87,12 +87,12 @@ router.post("/add", async (req, res) => {
 
     //Consulta para insertar los datos del articulo donde cada "?" es un campo de la tabla "CodigoPenal" en MySQL
     const query = `
-            Insert Into CodigoPenal (N_Articulo, NombreArt, Descripcion, Periodo, Importe) VALUES 
-            (?, ?, ?, ?, ?)
+            Insert Into CodigoPenal (N_Articulo, NombreArt, Descripcion, Periodo_I_Dias, Periodo_F_Dias, Importe) VALUES 
+            (?, ?, ?, ?, ?,?)
         `;
 
     //Arreglo con los valores pertenecientes a la consulta
-    const values = [N_Articulo, NombreArt, Descripcion, Periodo, Importe];
+    const values = [N_Articulo, NombreArt, Descripcion, Periodo_I_Dias,Periodo_F_Dias, Importe];
 
     //Ejecucion de la consulta
     const [resultado] = await pool.query(query, values);
@@ -127,10 +127,10 @@ router.put("/update", async (req, res) => {
       });
     }
     //si todo sale bien, obtenemos los datos del articulo
-    const { N_Articulo, NombreArt, Descripcion, Periodo, Importe } = req.body;
+    const { N_Articulo, NombreArt, Descripcion, Periodo_I_Dias, Periodo_F_Dias, Importe } = req.body;
 
     // Validamos que los campos no sean nulos
-    if (!N_Articulo || !NombreArt || !Descripcion || !Periodo || !Importe) {
+    if (!N_Articulo || !NombreArt || !Descripcion || !Periodo_I_Dias || !Periodo_F_Dias || !Importe) {
       return res.status(400).json({
         error: "Todos los campos son obligatorios",
       });
@@ -151,11 +151,11 @@ router.put("/update", async (req, res) => {
     //Consulta para modificar los datos del articulo donde cada "?" es un campo de la tabla "CodigoPenal" en MySQL
     const query = `
              Update CodigoPenal SET 
-             NombreArt =?, Descripcion =?, Periodo =?, Importe =? Where N_Articulo =?
+             NombreArt =?, Descripcion =?, Periodo_I_Dias =? ,Periodo_F_Dias =?, Importe =? Where N_Articulo =?
         `;
 
     //Arreglo con los valores pertenecientes a la consulta
-    const values = [NombreArt, Descripcion, Periodo, Importe, N_Articulo];
+    const values = [NombreArt, Descripcion, Periodo_I_Dias, Periodo_F_Dias, Importe, N_Articulo];
 
     //Ejecucion de la consulta
     const [resultado] = await pool.query(query, values);
