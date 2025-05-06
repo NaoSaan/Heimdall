@@ -29,7 +29,7 @@ router.get("/", async (req, res) => {
     }
 
     //Obtenermos todas las columnas de la tabla;
-    const [columns] = await pool.query("SHOW COLUMNS FROM Generab");
+    const [columns] = await pool.query("SHOW COLUMNS FROM GeneraB");
 
     //Creamos la condicion WHERE para cada columna
     const condicion = columns
@@ -37,7 +37,7 @@ router.get("/", async (req, res) => {
       .join(" OR ");
 
     // Creamos la consulta
-    const query = `SELECT * FROM Generab WHERE ${condicion}`;
+    const query = `SELECT * FROM GeneraB WHERE ${condicion}`;
 
     // Preparamos los valores para la consulta
     const values = Array(columns.length).fill(`%${filtro}%`);
