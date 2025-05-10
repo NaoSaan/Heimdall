@@ -3,6 +3,21 @@ const router = express.Router();
 const { pool } = require("../config/db");
 const { validarDatosCondenas } = require("../helpers/verificarDatosCondenas");
 
+
+
+// obtener datos de la tabla Condena
+router.get("/tipos/all", async (req, res) => {
+  try {
+    const [rows] = await pool.query("Select * From TipoCondena");
+    res.json(rows); 
+  } catch (error) {
+    console.error("Error al realizar la consulta", error);
+    res.status(500).json({
+      error: "Error al intentar traer la informacion de la base de datos",
+    });
+  }
+});
+
 // obtener datos de la tabla Condena
 router.get("/all", async (req, res) => {
   try {
@@ -101,6 +116,7 @@ router.post("/add", async (req, res) => {
 
     //Respuesta del servidor
     res.status(201).json({
+      ID_Condena: resultado.insertId,
       message: "Condena agregada exitosamente",
     });
   } catch (error) {

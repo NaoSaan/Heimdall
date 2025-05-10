@@ -2,6 +2,8 @@ const express = require("express");
 const cros = require("cors");
 const dotenv = require("dotenv");
 const { pool, conectarMongoDB } = require("./config/db");
+const path = require('path'); // Agregar esta línea
+
 dotenv.config();
 const router = express.Router();
 
@@ -12,6 +14,8 @@ app.use(express.json());
 //CONEXTAR A MONGODB
 conectarMongoDB();
 
+//RUTAS DE IMAGEN
+app.use('/images', express.static(path.join(__dirname, 'images')));
 //RUTAS
 app.get("/", (req, res) => {
   res.send("¡API funcionando correctamente!");

@@ -15,11 +15,32 @@ const validarDatosInformes = (reqb) => {
 
     // VALIDACIONES DE ARRAYS Y DATOS ANIDADOS
     if (reqb.Informe_Involucrados) {
-        // validar
+        // Validar que sea un array y no esté vacío
+        if (!Array.isArray(reqb.Informe_Involucrados) || reqb.Informe_Involucrados.length === 0) {
+            return {
+                error: 'Debe proporcionar al menos un involucrado',
+                isValid: false
+            }
+        }
+
+        // Validar que Articulos sea un array y no esté vacío para cada involucrado
+        const validacionArticulosArray = reqb.Informe_Involucrados.every(inv =>
+            inv && inv.Articulos && Array.isArray(inv.Articulos) && inv.Articulos.length > 0
+        );
+
+        if (!validacionArticulosArray) {
+            return {
+                error: 'Cada involucrado debe tener al menos un artículo',
+                isValid: false
+            }
+        }
+
+        // validar que exista un numero de articulo y no esté vacío
         const validacionArticulos = reqb.Informe_Involucrados.every(inv =>
             inv && inv.Articulos && Array.isArray(inv.Articulos) &&
-            inv.Articulos.every(art => art && art.Num_Art)
+            inv.Articulos.every(art => art && art.Num_Art && art.Num_Art.toString().trim() !== '')
         );
+
         // validar que el numero de articulo sea un numero entero 
         const validacionNumeroArticulo = reqb.Informe_Involucrados.every(inv =>
             inv && inv.Articulos && Array.isArray(inv.Articulos) &&
@@ -98,9 +119,17 @@ const validarDatosInformes = (reqb) => {
 
     //validar agentes y datos en array
     if (reqb.Informe_Agentes) {
+        // Validar que sea un array y no esté vacío
+        if (!Array.isArray(reqb.Informe_Agentes) || reqb.Informe_Agentes.length === 0) {
+            return {
+                error: 'Debe proporcionar al menos un agente',
+                isValid: false
+            }
+        }
+
         // validar que exista un numero de placa
         const validacionPlaca = reqb.Informe_Agentes.every(ag =>
-            ag && ag.Num_Placa);
+            ag && ag.Num_Placa && ag.Num_Placa.trim() !== '');
 
         //validar que el numero de placa no sea un numero
         const validacionPlacaNumero = reqb.Informe_Agentes.every(ag =>
@@ -110,13 +139,13 @@ const validarDatosInformes = (reqb) => {
 
         if (!validacionPlaca) {
             return {
-                error: 'El agente debe tener un numero de placa',
+                error: 'El agente debe tener un número de placa válido',
                 isValid: false
             }
         }
         if (!validacionPlacaNumero) {
             return {
-                error: 'El numero de placa no debe ser un numero entero',
+                error: 'El número de placa no debe ser un número entero',
                 isValid: false
             }
         }
@@ -124,13 +153,21 @@ const validarDatosInformes = (reqb) => {
 
     //validacion de foto en array
     if (reqb.Foto) {
-        // validar que exista un url de la foto
+        // Validar que sea un array y no esté vacío
+        if (!Array.isArray(reqb.Foto) || reqb.Foto.length === 0) {
+            return {
+                error: 'Debe proporcionar al menos una foto',
+                isValid: false
+            }
+        }
+
+        // validar que exista un url de la foto y no esté vacío
         const validacionFoto = reqb.Foto.every(fo =>
-            fo && fo.URL);
+            fo && fo.URL && fo.URL.trim() !== '');
 
         if (!validacionFoto) {
             return {
-                error: 'La foto debe tener una url',
+                error: 'Todas las fotos deben tener una URL válida',
                 isValid: false
             }
         }
@@ -138,7 +175,7 @@ const validarDatosInformes = (reqb) => {
 
     //VALIDACIONES INDIVIDUALE DE DATOS
     //validacion de estatus
-    if (estatus.length === 0) {
+    if (!estatus) {
         return {
             error: 'El estatus es requerido',
             isValid: false
@@ -153,6 +190,7 @@ const validarDatosInformes = (reqb) => {
 
     // Validación de fecha de nacimiento
     const fechaInfoDate = new Date(fecha_informe);
+
     const today = new Date();
     if (isNaN(Date.parse(fecha_informe))) {
         return {
@@ -168,7 +206,7 @@ const validarDatosInformes = (reqb) => {
     }
 
     //validacion de descripcion
-    if (descripcion.length === 0) {
+    if (!descripcion) {
         return {
             error: 'La descripcion es requerida',
             isValid: false
@@ -176,13 +214,13 @@ const validarDatosInformes = (reqb) => {
     }
 
     //validacion de direccion
-    if (calle.length === 0) {
+    if (!calle) {
         return {
             error: 'La calle es requerida',
             isValid: false
         }
     }
-    if (num_ext.length === 0) {
+    if (!num_ext) {
         return {
             error: 'El numero exterior es requerido',
             isValid: false
@@ -193,25 +231,25 @@ const validarDatosInformes = (reqb) => {
             isValid: false
         }
     }
-    if (colonia.length === 0) {
+    if (!colonia) {
         return {
             error: 'La colonia es requerida',
             isValid: false
         }
     }
-    if (ciudad.length === 0) {
+    if (!ciudad) {
         return {
             error: 'La ciudad es requerida',
             isValid: false
         }
     }
-    if (estado.length === 0) {
+    if (!estado) {
         return {
             error: 'El estado es requerido',
             isValid: false
         }
     }
-    if (pais.length === 0) {
+    if (!pais) {
         return {
             error: 'El pais es requerido',
             isValid: false
