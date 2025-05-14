@@ -19,14 +19,15 @@ router.post('/login', async (req, res) => {
 
     // Agrupar rangos
     let rangoAgrupado;
+
     if (['jefe de policia', 'jefe adjunto'].includes(agente.Rango.toLowerCase())) {
       rangoAgrupado = 'jefe';
     } else if (agente.Rango.toLowerCase() === 'comandante') {
       rangoAgrupado = 'comandante';
     } else if (['sargento', 'detective'].includes(agente.Rango.toLowerCase())) {
       rangoAgrupado = 'sargento/detective';
-    } else if (agente.Rango.toLowerCase() === 'official') {
-      rangoAgrupado = 'official';
+    } else if (agente.Rango.toLowerCase() === 'oficial') {
+      rangoAgrupado = 'oficial';
     } else {
       return res.status(400).json({ message: 'Rango no reconocido' });
     }

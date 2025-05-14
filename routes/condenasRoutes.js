@@ -177,7 +177,7 @@ router.put("/update", async (req, res) => {
     );
     if (!existTC.length > 0) {
       return res.status(400).json({
-        error: "La CURP no existe en la base de datos",
+        error: "El tipo de condena no existe en la base de datos",
       });
     }
 
