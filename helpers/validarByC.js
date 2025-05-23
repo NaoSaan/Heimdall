@@ -1,6 +1,6 @@
-const validarByC = ({ Folio_BC, Clasi, Cantidad, curpFK, id_condenaFK }) => {
+const validarByC = ({ Folio_BC, Clasi, Cantidad, curpFK}) => {
     // Validamos que los campos no sean nulos
-    if (!Folio_BC || !Clasi || !Cantidad || !curpFK || !id_condenaFK) {
+    if (!Folio_BC || !Clasi || !Cantidad || !curpFK) {
         return {
             isValid: false,
             error: 'Todos los campos son obligatorios'
@@ -34,16 +34,6 @@ const validarByC = ({ Folio_BC, Clasi, Cantidad, curpFK, id_condenaFK }) => {
             isValid: false,
             error: 'La CURP no tiene el formato correcto (formato: AAAA######AAAAAA##)'
         };
-    }
-    //validar que id_condenaFK sea un numero
-    if (isNaN(parseInt(id_condenaFK))) {
-        return {
-            isValid: false,
-            error: 'El id de la condena debe ser un numero'
-        }
-    }
-    return {
-        isValid: true
     }
 }
 

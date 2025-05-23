@@ -62,13 +62,8 @@ router.get("/", async (req, res) => {
 // Inserta una nueva busqueda en MySQL
 router.post("/add", async (req, res) => {
   try {
-    //validamos todos los campos
-    const validarResultados = validarByC(req.body);
-    if (validarResultados.isValid === false) {
-      return res.status(400).json({ error: validarResultados.error });
-    }
     //si todo esta correcto, procedemos a insertar los datos
-    const { Folio_BC, Clasi, Cantidad, curpFK, id_condenaFK } = req.body;
+    const { Folio_BC, Clasi, Cantidad, curpFK} = req.body;
 
     //Validacion: CURP exista en la base de datos
     const [existCiudadano] = await pool.query(
@@ -81,32 +76,21 @@ router.post("/add", async (req, res) => {
       });
     }
 
-    //Validacion: Condena no exista en la base de datos
-    const [existCondena] = await pool.query(
-      "SELECT * FROM Condena WHERE ID_Condena =?",
-      [id_condenaFK]
-    );
-    if (!existCondena.length > 0) {
-      return res.status(400).json({
-        error: "La condena no existe en la base de datos",
-      });
-    }
-
     //Consulta para insertar los datos de la busqueda donde cada "?" es un campo de la tabla "GeneraB" en MySQL
     const query = `
-            Insert Into GeneraB (Folio_BC, Clasi, Cantidad, curpFK, id_condenaFK) VALUES 
-            (?, ?, ?, ?, ?)
+            Insert Into GeneraB (Folio_BC, Clasi, Cantidad, curpFK) VALUES 
+            (?, ?, ?, ?)
         `;
 
     //Arreglo con los valores pertenecientes a la consulta
-    const values = [Folio_BC, Clasi, Cantidad, curpFK, id_condenaFK];
+    const values = [Folio_BC, Clasi, Cantidad, curpFK];
 
     //Ejecucion de la consulta
     const [resultados] = await pool.query(query, values);
 
     if (resultados.affectedRows === 0) {
       return res.status(400).json({
-        error: "Huno error al insertar la busqueda en la base de datos",
+        error: "Hubo error al insertar la busqueda en la base de datos",
       });
     }
 

@@ -3,13 +3,17 @@ const router = express.Router();
 const { pool } = require("../config/db");
 const { validarDatosCondenas } = require("../helpers/verificarDatosCondenas");
 
-
+function generateFolio() {
+  const timestamp = Date.now().toString().slice(-6);
+  const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+  return timestamp + random;
+}
 
 // obtener datos de la tabla Condena
 router.get("/tipos/all", async (req, res) => {
   try {
     const [rows] = await pool.query("Select * From TipoCondena");
-    res.json(rows); 
+    res.json(rows);
   } catch (error) {
     console.error("Error al realizar la consulta", error);
     res.status(500).json({
@@ -83,7 +87,7 @@ router.post("/add", async (req, res) => {
         error: verificarRespuesta.error,
       });
     }
-    const { Fecha_I, Duracion, Importe, Estatus, id_tipocondenaFK } = req.body;
+    const { Fecha_I, Duracion, Importe, Estatus, id_tipocondenaFK, curpFK } = req.body;
 
     //Validacion: Tipo de condena exista en la base de datos
     const [existTC] = await pool.query(
@@ -96,14 +100,25 @@ router.post("/add", async (req, res) => {
       });
     }
 
+    //Validacion: CURP exista en la base de datos
+    const [existCiudadano] = await pool.query(
+      "SELECT * FROM Ciudadanos WHERE CURP =?",
+      [curpFK]
+    );
+    if (!existCiudadano.length > 0) {
+      return res.status(400).json({
+        error: "La CURP no existe en la base de datos",
+      });
+    }
+
     //Consulta para insertar los datos de la condena donde cada "?" es un campo de la tabla "Condena" en MySQL
     const query = `
-            Insert Into Condena (Fecha_I, Duracion, Importe, Estatus, id_tipocondenaFK) VALUES 
-            (?, ?, ?, ?, ?)
+            Insert Into Condena (Fecha_I, Duracion, Importe, Estatus, id_tipocondenaFK, curpFK) VALUES 
+            (?, ?, ?, ?, ?, ?)
         `;
 
     //Arreglo con los valores pertenecientes a la consulta
-    const values = [Fecha_I, Duracion, Importe, Estatus, id_tipocondenaFK];
+    const values = [Fecha_I, Duracion, Importe, Estatus, id_tipocondenaFK, curpFK];
 
     //Ejecucion de la consulta
     const [resultado] = await pool.query(query, values);
@@ -114,10 +129,76 @@ router.post("/add", async (req, res) => {
       });
     }
 
+    const queryC = `
+        SELECT SUM(Importe) AS TotalI FROM Condena WHERE curpFK = ?
+    `;
+    const valuesQC = [curpFK];
+    const [resB] = await pool.query(queryC, valuesQC);
+
+    // Validamos si existe una busqueda asociada a una curp
+    const Exist = async (curp) => {
+      const [rows] = await pool.query(
+        'SELECT Folio_BC FROM GeneraB WHERE curpFK = ?',
+        [curp]
+      );
+      return rows.length > 0 ? rows[0].Folio_BC : null;
+    };
+
+    // Insert o update si la cantidad es mayor a 3000
+    if (resB[0].TotalI > 3000) {
+      const ChEx = await Exist(curpFK);
+      if (ChEx) {
+        await pool.query(
+          "UPDATE GeneraB SET Cantidad = ?, Clasi = 'B' WHERE Folio_BC = ?",
+          [resB[0].TotalI, ChEx]
+        );
+      } else {
+        const folio = generateFolio();
+        await pool.query(
+          'INSERT INTO GeneraB (Folio_BC, Clasi, Cantidad, curpFK) VALUES (?, ?, ?, ?)',
+          [folio, 'B', resB[0].TotalI, curpFK]
+        );
+      }
+    }
+
+    // Insert o update si la cantidad es mayor a 7000
+    if (resB[0].TotalI > 7000) {
+      const ChEx = await Exist(curpFK);
+      if (ChEx) {
+        await pool.query(
+          "UPDATE GeneraB SET Cantidad = ?, Clasi = 'M' WHERE Folio_BC = ?",
+          [resB[0].TotalI, ChEx]
+        );
+      } else {
+        const folio = generateFolio();
+        await pool.query(
+          'INSERT INTO GeneraB (Folio_BC, Clasi, Cantidad, curpFK) VALUES (?, ?, ?, ?)',
+          [folio, 'M', resB[0].TotalI, curpFK]
+        );
+      }
+    }
+
+    // Insert o update si la cantidad es mayor a 15000
+    if (resB[0].TotalI > 15000) {
+      const ChEx = await Exist(curpFK);
+      if (ChEx) {
+        await pool.query(
+          "UPDATE GeneraB SET Cantidad = ?, Clasi = 'A' WHERE Folio_BC = ?",
+          [resB[0].TotalI, ChEx]
+        );
+      } else {
+        const folio = generateFolio();
+        await pool.query(
+          'INSERT INTO GeneraB (Folio_BC, Clasi, Cantidad, curpFK) VALUES (?, ?, ?, ?)',
+          [folio, 'A', resB[0].TotalI, curpFK]
+        );
+      }
+    }
+
     //Respuesta del servidor
     res.status(201).json({
-      ID_Condena: resultado.insertId,
       message: "Condena agregada exitosamente",
+      totalImporte: resB[0].totalImporte
     });
   } catch (error) {
     //Si algo no se ejecuta correctamente, mostramos el error en consola
@@ -151,7 +232,7 @@ router.put("/update", async (req, res) => {
     // Validamos que los campos no sean nulos
     if (
       (!ID_Condena,
-      !Fecha_I || !Duracion || !Importe || !Estatus || !id_tipocondenaFK)
+        !Fecha_I || !Duracion || !Importe || !Estatus || !id_tipocondenaFK)
     ) {
       return res.status(400).json({
         error: "Todos los campos son obligatorios",
@@ -211,6 +292,7 @@ router.put("/update", async (req, res) => {
       message: "Condena actualizada exitosamente",
     });
   } catch (error) {
+
     //Si algo no se ejecuta correctamente, mostramos el error en consola
     console.error("Error al actualizar la condena:", error);
     res.status(500).json({
