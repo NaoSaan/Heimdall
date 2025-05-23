@@ -198,6 +198,7 @@ router.post("/add", async (req, res) => {
     //Respuesta del servidor
     res.status(201).json({
       message: "Condena agregada exitosamente",
+      ID_Condena: resultado.insertId,
       totalImporte: resB[0].totalImporte
     });
   } catch (error) {
