@@ -130,7 +130,7 @@ router.post("/add", async (req, res) => {
     }
 
     const queryC = `
-        SELECT SUM(Importe) AS TotalI FROM Condena WHERE curpFK = ?
+        SELECT SUM(Importe) AS TotalI FROM Condena WHERE curpFK = ? AND Estatus = 'P'
     `;
     const valuesQC = [curpFK];
     const [resB] = await pool.query(queryC, valuesQC);
@@ -232,8 +232,7 @@ router.put("/update", async (req, res) => {
 
     // Validamos que los campos no sean nulos
     if (
-      (!ID_Condena,
-        !Fecha_I || !Duracion || !Importe || !Estatus || !id_tipocondenaFK || !curpFK)
+      (!ID_Condena, !Fecha_I || !Duracion || !Importe || !Estatus || !id_tipocondenaFK || !curpFK)
     ) {
       return res.status(400).json({
         error: "Todos los campos son obligatorios",
@@ -274,7 +273,6 @@ router.put("/update", async (req, res) => {
       });
     }
 
-
     //Consulta para modificar los datos de la condena donde cada "?" es un campo de la tabla "Condena" en MySQL
     const query = `
             Update Condena SET 
@@ -300,6 +298,84 @@ router.put("/update", async (req, res) => {
         error: "Error al actualizar la condena en la base de datos",
       });
     }
+
+    const queryCB = `
+        SELECT SUM(Importe) AS TotalI FROM Condena WHERE curpFK = ? AND Estatus = 'P'
+    `;
+    const valuesQCB = [curpFK];
+    const [resBU] = await pool.query(queryCB, valuesQCB);
+
+    // Validamos si existe una busqueda asociada a una curp
+    const ExistC = async (curp) => {
+      const [rows] = await pool.query(
+        'SELECT Folio_BC FROM GeneraB WHERE curpFK = ?',
+        [curp]
+      );
+      return rows.length > 0 ? rows[0].Folio_BC : null;
+    };
+
+    // Insert o update si la cantidad es mayor a 3000
+    if (resBU[0].TotalI < 3000) {
+      const ChEx = await ExistC(curpFK);
+      if (ChEx) {
+        await pool.query(
+          "DELETE FROM GeneraB where Folio_BC = ?",
+          [ChEx]
+        );
+      } 
+    }
+
+    // Insert o update si la cantidad es mayor a 3000
+    if (resBU[0].TotalI > 3000) {
+      const ChEx = await ExistC(curpFK);
+      if (ChEx) {
+        await pool.query(
+          "UPDATE GeneraB SET Cantidad = ?, Clasi = 'B' WHERE Folio_BC = ?",
+          [resBU[0].TotalI, ChEx]
+        );
+      } else {
+        const folio = generateFolio();
+        await pool.query(
+          'INSERT INTO GeneraB (Folio_BC, Clasi, Cantidad, curpFK) VALUES (?, ?, ?, ?)',
+          [folio, 'B', resBU[0].TotalI, curpFK]
+        );
+      }
+    }
+
+    // Insert o update si la cantidad es mayor a 7000
+    if (resBU[0].TotalI > 7000) {
+      const ChEx = await ExistC(curpFK);
+      if (ChEx) {
+        await pool.query(
+          "UPDATE GeneraB SET Cantidad = ?, Clasi = 'M' WHERE Folio_BC = ?",
+          [resBU[0].TotalI, ChEx]
+        );
+      } else {
+        const folio = generateFolio();
+        await pool.query(
+          'INSERT INTO GeneraB (Folio_BC, Clasi, Cantidad, curpFK) VALUES (?, ?, ?, ?)',
+          [folio, 'M', resBU[0].TotalI, curpFK]
+        );
+      }
+    }
+
+    // Insert o update si la cantidad es mayor a 15000
+    if (resBU[0].TotalI > 15000) {
+      const ChEx = await ExistC(curpFK);
+      if (ChEx) {
+        await pool.query(
+          "UPDATE GeneraB SET Cantidad = ?, Clasi = 'A' WHERE Folio_BC = ?",
+          [resBU[0].TotalI, ChEx]
+        );
+      } else {
+        const folio = generateFolio();
+        await pool.query(
+          'INSERT INTO GeneraB (Folio_BC, Clasi, Cantidad, curpFK) VALUES (?, ?, ?, ?)',
+          [folio, 'A', resBU[0].TotalI, curpFK]
+        );
+      }
+    }
+
 
     //Respuesta del servidor
     res.status(201).json({
