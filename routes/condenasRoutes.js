@@ -227,12 +227,13 @@ router.put("/update", async (req, res) => {
       Importe,
       Estatus,
       id_tipocondenaFK,
+      curpFK
     } = req.body;
 
     // Validamos que los campos no sean nulos
     if (
       (!ID_Condena,
-        !Fecha_I || !Duracion || !Importe || !Estatus || !id_tipocondenaFK)
+        !Fecha_I || !Duracion || !Importe || !Estatus || !id_tipocondenaFK || !curpFK)
     ) {
       return res.status(400).json({
         error: "Todos los campos son obligatorios",
@@ -262,10 +263,22 @@ router.put("/update", async (req, res) => {
       });
     }
 
+    //Validacion: CURP exista en la base de datos
+    const [existCiudadano] = await pool.query(
+      "SELECT * FROM Ciudadanos WHERE CURP =?",
+      [curpFK]
+    );
+    if (!existCiudadano.length > 0) {
+      return res.status(400).json({
+        error: "La CURP no existe en la base de datos",
+      });
+    }
+
+
     //Consulta para modificar los datos de la condena donde cada "?" es un campo de la tabla "Condena" en MySQL
     const query = `
             Update Condena SET 
-            Fecha_I =?, Duracion =?, Importe =?, Estatus =?, id_tipocondenaFK=? Where ID_Condena =?
+            Fecha_I =?, Duracion =?, Importe =?, Estatus =?, id_tipocondenaFK=?, curpFK = ? Where ID_Condena =?
         `;
 
     //Arreglo con los valores pertenecientes a la consulta
@@ -275,6 +288,7 @@ router.put("/update", async (req, res) => {
       Importe,
       Estatus,
       id_tipocondenaFK,
+      curpFK,
       ID_Condena,
     ];
 

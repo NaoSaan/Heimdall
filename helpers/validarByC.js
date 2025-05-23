@@ -1,4 +1,4 @@
-const validarByC = ({ Folio_BC, Clasi, Cantidad, curpFK}) => {
+const validarByC = async ({ Folio_BC, Clasi, Cantidad, curpFK}) => {
     // Validamos que los campos no sean nulos
     if (!Folio_BC || !Clasi || !Cantidad || !curpFK) {
         return {
@@ -35,6 +35,9 @@ const validarByC = ({ Folio_BC, Clasi, Cantidad, curpFK}) => {
             error: 'La CURP no tiene el formato correcto (formato: AAAA######AAAAAA##)'
         };
     }
+    return {
+        isValid: true
+    };
 }
 
 module.exports = {validarByC};

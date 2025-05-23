@@ -66,6 +66,17 @@ router.post("/add", async (req, res) => {
     const { Folio_BC, Clasi, Cantidad, curpFK} = req.body;
 
     //Validacion: CURP exista en la base de datos
+    const [existSe] = await pool.query(
+      "SELECT * FROM GeneraB WHERE Folio_BC =?",
+      [Folio_BC]
+    );
+    if (existSe.length > 0) {
+      return res.status(400).json({
+        error: "El folio de busqueda ya existe en la base de datos",
+      });
+    }
+
+    //Validacion: CURP exista en la base de datos
     const [existCiudadano] = await pool.query(
       "SELECT * FROM Ciudadanos WHERE CURP =?",
       [curpFK]
@@ -116,7 +127,7 @@ router.put("/update", async (req, res) => {
       return res.status(400).json({ error: validarResultados.error });
     }
     //si todo esta correcto, procedemos a actualizar los datos
-    const { Folio_BC, Clasi, Cantidad, curpFK, id_condenaFK } = req.body;
+    const { Folio_BC, Clasi, Cantidad, curpFK} = req.body;
 
     //Validacion: Busqueda exista en la base de datos
     const [existBusqueda] = await pool.query(
@@ -141,25 +152,14 @@ router.put("/update", async (req, res) => {
       });
     }
 
-    //Validacion: Condena no exista en la base de datos
-    const [existCondena] = await pool.query(
-      "SELECT * FROM Condena WHERE ID_Condena =?",
-      [id_condenaFK]
-    );
-    if (!existCondena.length > 0) {
-      return res.status(400).json({
-        error: "La condena no existe en la base de datos",
-      });
-    }
-
     //Consulta para insertar los datos de la busqueda donde cada "?" es un campo de la tabla "GeneraB" en MySQL
     const query = `
             update GeneraB set 
-            Clasi=?, Cantidad=?, curpFK=?, id_condenaFK=? where Folio_BC=?
+            Clasi=?, Cantidad=?, curpFK=? where Folio_BC=?
         `;
 
     //Arreglo con los valores pertenecientes a la consulta
-    const values = [Clasi, Cantidad, curpFK, id_condenaFK, Folio_BC];
+    const values = [Clasi, Cantidad, curpFK, Folio_BC];
 
     //Ejecucion de la consulta
     const [resultados] = await pool.query(query, values);

@@ -1,9 +1,10 @@
-const validarDatosCondenas = ({ Fecha_I, Duracion, Importe, Estatus, id_tipocondenaFK }) => {
+const validarDatosCondenas = ({ Fecha_I, Duracion, Importe, Estatus, id_tipocondenaFK, curpFK }) => {
     // Validamos que los campos no sean nulos
-    if (!Fecha_I || !Duracion || !Importe || !Estatus || !id_tipocondenaFK) {
-        return res.status(400).json({
+    if (!Fecha_I || !Duracion || !Importe || !Estatus || !id_tipocondenaFK || !curpFK) {
+        return {
+            isValid: false,
             error: 'Todos los campos son obligatorios'
-        });
+        };
     }
     // Validación de fecha de nacimiento
     const fechaI = new Date(Fecha_I);
@@ -52,6 +53,7 @@ const validarDatosCondenas = ({ Fecha_I, Duracion, Importe, Estatus, id_tipocond
     return {
         isValid: true
     }
+    
 }
 
 module.exports = {validarDatosCondenas};
