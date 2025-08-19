@@ -22,7 +22,7 @@ router.get("/tipos/all", async (req, res) => {
   }
 });
 
-// obtener datos de la tabla Condena
+// obtener datos de la tabla Condena 
 router.get("/all", async (req, res) => {
   try {
     const [rows] = await pool.query("Select * From Condena");
@@ -32,6 +32,164 @@ router.get("/all", async (req, res) => {
     res.status(500).json({
       error: "Error al intentar traer la informacion de la base de datos",
     });
+  }
+});
+
+// obtener datos de la tabla Condena (Movil)
+router.get("/allxc", async (req, res) => {
+  try {
+    const [rows] = await pool.query("Select c.ID_Condena, tc.Tipo, c.Importe , c2.CURP, c2.Nombre , c2.APaterno, c2.AMaterno, v.Matricula From Condena c inner join Ciudadanos c2  On c.curpFK = c2.CURP inner join Vehiculos v  On c2.CURP = v.curpFK inner join TipoCondena tc On c.id_tipocondenaFK = tc.ID_TipoCondena ");
+    res.json(rows);
+  } catch (error) { 
+    console.error("Error al realizar la consulta", error);
+    res.status(500).json({
+      error: "Error al intentar traer la informacion de la base de datos",
+    });
+  }
+});
+
+// Obtener datos de la tabla Condena por filtro (Movil)
+router.get("/axcf/", async (req, res) => {
+  try {
+    const filtro = req.query.by;
+
+    if (!filtro) {
+      return res
+        .status(400)
+        .json({ error: "Debe proporcionar un texto para buscar" });
+    }
+
+    // Definimos las columnas sobre las que queremos buscar
+    const columnas = [
+      "c.ID_Condena",
+      "tc.Tipo",
+      "c.Importe",
+      "c2.CURP",
+      "c2.Nombre",
+      "c2.APaterno",
+      "c2.AMaterno",
+      "v.Matricula"
+    ];
+
+    // Creamos la condición WHERE dinámica
+    const condicion = columnas.map(col => `${col} LIKE ?`).join(" OR ");
+
+    // Construimos la consulta
+    const query = `
+      SELECT c.ID_Condena, tc.Tipo, c.Importe, c2.CURP, c2.Nombre, 
+             c2.APaterno, c2.AMaterno, v.Matricula
+      FROM Condena c
+      INNER JOIN Ciudadanos c2 ON c.curpFK = c2.CURP
+      INNER JOIN Vehiculos v ON c2.CURP = v.curpFK
+      INNER JOIN TipoCondena tc ON c.id_tipocondenaFK = tc.ID_TipoCondena
+      WHERE ${condicion}
+    `;
+
+    // Preparamos los valores
+    const values = Array(columnas.length).fill(`%${filtro}%`);
+
+    const [rows] = await pool.query(query, values);
+
+    if (rows.length === 0) {
+      return res.json({
+        message: "No se encontraron resultados para esta búsqueda",
+      });
+    }
+
+    res.json(rows);
+  } catch (error) {
+    console.error("Error al realizar la búsqueda", error);
+    res
+      .status(500)
+      .json({ error: "Error al realizar la búsqueda en la base de datos" });
+  }
+});
+
+router.post("/allf", async (req, res) => {
+  try {
+    const { curp } = req.body;
+
+    const sql = `
+      SELECT 
+        c.ID_Condena, 
+        tc.Tipo, 
+        c.Importe, 
+        c2.CURP, 
+        c2.Nombre, 
+        c2.APaterno, 
+        c2.AMaterno, 
+        c.Estatus 
+      FROM Condena c
+      INNER JOIN Ciudadanos c2 ON c.curpFK = c2.CURP 
+      INNER JOIN TipoCondena tc ON c.id_tipocondenaFK = tc.ID_TipoCondena 
+      WHERE c.id_tipocondenaFK = 5 
+        AND c2.CURP = ?
+    `;
+
+    const [rows] = await pool.query(sql, [curp]);
+    res.json(rows);
+  } catch (error) {
+    console.error("Error al realizar la consulta", error);
+    res.status(500).json({
+      error: "Error al intentar traer la información de la base de datos",
+    });
+  }
+});
+
+// Obtener datos de la tabla Condena por filtro cuyotipo de condena es multa(Movil)
+// Nueva API: Buscar condenas tipo multa por CURP + filtro dinámico (Movil)
+router.post("/mufi", async (req, res) => {
+  try {
+    const { curp, filtro } = req.body;
+
+    if (!filtro) {
+      return res
+        .status(400)
+        .json({ error: "Debe proporcionar un filtro de búsqueda" });
+    }
+
+    // Definimos las columnas sobre las que queremos buscar
+    const columnas = [
+      "c.ID_Condena",
+      "tc.Tipo",
+      "c.Importe",
+      "c2.CURP",
+      "c2.Nombre",
+      "c2.APaterno",
+      "c2.AMaterno"
+    ];
+
+    // Creamos la condición dinámica
+    const condicionFiltro = columnas.map(col => `${col} LIKE ?`).join(" OR ");
+
+    // Consulta SQL con CURP obligatoria + multas + filtro dinámico
+    const query = `
+      SELECT c.ID_Condena, tc.Tipo, c.Importe, c2.CURP, 
+             c2.Nombre, c2.APaterno, c2.AMaterno, c.Estatus
+      FROM Condena c
+      INNER JOIN Ciudadanos c2 ON c.curpFK = c2.CURP
+      INNER JOIN TipoCondena tc ON c.id_tipocondenaFK = tc.ID_TipoCondena
+      WHERE c.id_tipocondenaFK = 5
+        AND c2.CURP = ?
+        AND (${condicionFiltro})
+    `;
+
+    const values = [curp, ...Array(columnas.length).fill(`%${filtro}%`)];
+
+    const [rows] = await pool.query(query, values);
+
+    if (rows.length === 0) {
+      return res.json({
+        message: "No se encontraron resultados para esta búsqueda",
+      });
+    }
+
+    res.json(rows);
+  } catch (error) {
+    console.error("Error al realizar la búsqueda", error);
+    res
+      .status(500)
+      .json({ error: "Error al realizar la búsqueda en la base de datos" });
   }
 });
 
