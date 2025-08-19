@@ -45,4 +45,29 @@ router.post('/login', async (req, res) => {
   }
 });
 
+router.post('/loginCiu', async (req, res) => {
+  try {
+    const { CURP, password } = req.body;
+    const [rows] = await pool.query('SELECT * FROM Ciudadanos WHERE CURP = ?', [CURP]);
+    const ciudadano = rows[0];
+
+    if (!ciudadano || !(await bcrypt.compare(password, ciudadano.pwd))) {
+      return res.status(401).json({ message: 'Credenciales inválidas' });
+    }
+
+    // Generar el token JWT usando el servicio
+    const token = createToken(ciudadano);
+
+    //Mostrar la informacion del ciudadano
+    return res.json({
+      token,
+      curp: ciudadano.CURP  
+    });
+    //Linea de error en caso de que no se pueda hacer el login
+  } catch (error) {
+    console.error( "Error al acceder al servidor: " + error.message );
+    res.status(500).json({ message: "Error al acceder al servidor: " + error.message });
+  }
+});
+
 module.exports = router;

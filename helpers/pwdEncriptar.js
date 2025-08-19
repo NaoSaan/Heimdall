@@ -11,4 +11,12 @@ async function EncryptPWD(pwd) {
     }
 }
 
+// async function main() {
+//   const password = "ROMJ030511HDGBNSA4";
+//   const hashedPassword = await EncryptPWD(password);
+//   console.log("Hashed password:", hashedPassword);
+// }
+
+// main();
+
 module.exports = EncryptPWD;
