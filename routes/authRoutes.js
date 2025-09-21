@@ -61,7 +61,10 @@ router.post('/loginCiu', async (req, res) => {
     //Mostrar la informacion del ciudadano
     return res.json({
       token,
-      curp: ciudadano.CURP  
+      curp: ciudadano.CURP  ,
+      Nombre: ciudadano.Nombre,
+      APaterno: ciudadano.APaterno,
+      AMaterno: ciudadano.AMaterno,
     });
     //Linea de error en caso de que no se pueda hacer el login
   } catch (error) {
