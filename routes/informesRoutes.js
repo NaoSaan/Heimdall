@@ -72,7 +72,7 @@ router.get('/', async (req, res) => {
     });
 
     if (informes.length === 0) {
-      return res.status(404).json({ message: 'No se encontraron informes' });
+      return res.json({ message: 'No se encontraron informes' });
     }
 
     res.json(informes);

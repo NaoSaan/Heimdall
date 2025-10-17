@@ -152,26 +152,26 @@ const validarDatosInformes = (reqb) => {
     }
 
     //validacion de foto en array
-    if (reqb.Foto) {
-        // Validar que sea un array y no esté vacío
-        if (!Array.isArray(reqb.Foto) || reqb.Foto.length === 0) {
-            return {
-                error: 'Debe proporcionar al menos una foto',
-                isValid: false
-            }
-        }
+    // if (reqb.Foto) {
+    //     // Validar que sea un array y no esté vacío
+    //     if (!Array.isArray(reqb.Foto) || reqb.Foto.length === 0) {
+    //         return {
+    //             error: 'Debe proporcionar al menos una foto',
+    //             isValid: false
+    //         }
+    //     }
 
-        // validar que exista un url de la foto y no esté vacío
-        const validacionFoto = reqb.Foto.every(fo =>
-            fo && fo.URL && fo.URL.trim() !== '');
+    //     // validar que exista un url de la foto y no esté vacío
+    //     const validacionFoto = reqb.Foto.every(fo =>
+    //         fo && fo.URL && fo.URL.trim() !== '');
 
-        if (!validacionFoto) {
-            return {
-                error: 'Todas las fotos deben tener una URL válida',
-                isValid: false
-            }
-        }
-    }
+    //     if (!validacionFoto) {
+    //         return {
+    //             error: 'Todas las fotos deben tener una URL válida',
+    //             isValid: false
+    //         }
+    //     }
+    // }
 
     //VALIDACIONES INDIVIDUALE DE DATOS
     //validacion de estatus
