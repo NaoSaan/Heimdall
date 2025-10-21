@@ -48,6 +48,19 @@ router.get("/allxc", async (req, res) => {
   }
 });
 
+router.post("/byId", async (req, res) => {
+  try {
+    const { id } = req.body;
+    const [rows] = await pool.query("Select c.ID_Condena, tc.Tipo, c.Importe , c2.CURP, c2.Nombre , c2.APaterno, c2.AMaterno, v.Matricula, c.Estatus From Condena c inner join Ciudadanos c2  On c.curpFK = c2.CURP inner join Vehiculos v  On c2.CURP = v.curpFK inner join TipoCondena tc On c.id_tipocondenaFK = tc.ID_TipoCondena WHERE c.ID_Condena = ?", [id]);
+    res.json(rows);
+  } catch (error) {
+    console.error("Error al realizar la consulta", error);
+    res.status(500).json({
+      error: "Error al intentar traer la informacion de la base de datos",
+    });
+  }
+});
+
 // Obtener datos de la tabla Condena por filtro (Movil)
 router.get("/axcf/", async (req, res) => {
   try {
@@ -136,6 +149,37 @@ router.post("/allf", async (req, res) => {
   }
 });
 
+router.post("/byIdCi", async (req, res) => {
+  try {
+    const { id } = req.body;
+
+    const sql = `
+      SELECT 
+        c.ID_Condena, 
+        tc.Tipo, 
+        c.Importe, 
+        c2.CURP, 
+        c2.Nombre, 
+        c2.APaterno, 
+        c2.AMaterno, 
+        c.Estatus 
+      FROM Condena c
+      INNER JOIN Ciudadanos c2 ON c.curpFK = c2.CURP 
+      INNER JOIN TipoCondena tc ON c.id_tipocondenaFK = tc.ID_TipoCondena 
+      WHERE c.id_tipocondenaFK = 5 
+       AND c.ID_Condena = ?
+    `;
+
+    const [rows] = await pool.query(sql, [id]);
+    res.json(rows);
+  } catch (error) {
+    console.error("Error al realizar la consulta", error);
+    res.status(500).json({
+      error: "Error al intentar traer la información de la base de datos",
+    });
+  }
+});
+
 // Obtener datos de la tabla Condena por filtro cuyotipo de condena es multa(Movil)
 // Nueva API: Buscar condenas tipo multa por CURP + filtro dinámico (Movil)
 router.post("/mufi", async (req, res) => {
@@ -192,6 +236,8 @@ router.post("/mufi", async (req, res) => {
       .json({ error: "Error al realizar la búsqueda en la base de datos" });
   }
 });
+
+
 
 //Obtener datos de la tabla Condena por filtro
 router.get("/", async (req, res) => {
