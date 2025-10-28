@@ -596,4 +596,114 @@ router.put("/update", async (req, res) => {
   }
 });
 
+// updatear estatus de una condena pagada
+
+router.put("/updateByPay", async (req, res) => {
+
+  try {
+
+    //si todo sale bien, obtenemos los datos de la condena
+
+    const { ID_Condena, Estatus } = req.body;
+
+
+
+    // Validamos que los campos no sean nulos
+
+    if (!ID_Condena || !Estatus) {
+
+      return res.status(400).json({
+
+        error: "Todos los campos son obligatorios",
+
+      });
+
+    }
+
+
+
+    //Validación: Condena exista en la base de datos
+
+    const [existCondena] = await pool.query(
+
+      "SELECT * FROM Condena WHERE ID_Condena =?",
+
+      [ID_Condena],
+
+    );
+
+    if (!existCondena.length > 0) {
+
+      return res.status(400).json({
+
+        error:
+
+          "La condena que se quiere actualizar no existe en la base de datos",
+
+      });
+
+    }
+
+
+
+    //Consulta para modificar los datos de la condena donde cada "?" es un campo de la tabla "Condena" en MySQL
+
+    const query = `
+
+            Update Condena SET
+
+            Estatus =? Where ID_Condena =?
+
+        `;
+
+
+
+    //Arreglo con los valores pertenecientes a la consulta
+
+    const values = [Estatus, ID_Condena];
+
+
+
+    //Ejecución de la consulta
+
+    const [resultado] = await pool.query(query, values);
+
+
+
+    if (resultado.affectedRows === 0) {
+
+      return res.status(500).json({
+
+        error: "Error al actualizar la condena en la base de datos",
+
+      });
+
+    }
+
+
+
+    //Respuesta del servidor
+
+    res.status(201).json({
+
+      message: "Condena actualizada exitosamente",
+
+    });
+
+  } catch (error) {
+
+    //Si algo no se ejecuta correctamente, mostramos el error en consola
+
+    console.error("Error al actualizar la condena:", error);
+
+    res.status(500).json({
+
+      error: "Error al actualizar la condena en la base de datos",
+
+    });
+
+  }
+
+});
+
 module.exports = router;
