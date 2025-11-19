@@ -59,6 +59,20 @@ router.get("/all", check.auth, async (req, res) => {
     });
   }
 });
+
+// obtener datos de la tabla agentes
+router.get("/allm", async (req, res) => {
+  try {
+    const [rows] = await pool.query("Select * From Agentes");
+    res.json(rows);
+  } catch (error) {
+    console.error("Error al realizar la consulta", error);
+    res.status(500).json({
+      error: "Error al intentar traer la informacion de la base de datos",
+    });
+  }
+});
+
 //Crear agente
 router.post("/add", check.auth, async (req, res) => {
   try {
