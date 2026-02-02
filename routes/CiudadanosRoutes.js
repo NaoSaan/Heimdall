@@ -70,7 +70,7 @@ router.post("/add", async (req, res) => {
       });
     }
 
-    // si todo salio bien desestructurisamos los datos del ciudadano
+    // si todos salio bien desestructurisamos los dato del ciudadano
     const {
       CURP,
       Nombre,
@@ -93,12 +93,14 @@ router.post("/add", async (req, res) => {
         error: "La CURP ya existe en la base de datos",
       });
     }
-    const pwdEncriptada = await EncryptPWD(pwd);
+
+    // ENCRIPTACION DE LA CONTRASEÑA
+    const pwdEncriptada = await EncryptPWD(CURP);
 
     //Consulta para insertar los datos del ciudadano donde cada "?" es un campo de la tabla "Ciudadanos" en MySQL
     const query = `
-            Insert Into Ciudadanos (CURP, Nombre, APaterno, AMaterno, FechaNac, Sexo, Direccion, Foto, Vive ) VALUES 
-            (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            Insert Into Ciudadanos (CURP, Nombre, APaterno, AMaterno, FechaNac, Sexo, Direccion, Foto, Vive, pwd) VALUES 
+            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
     //Arreglo con los valores pertenecientes a la consulta
