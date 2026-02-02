@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { pool } = require("../config/db");
 const { validarDatosCiudadanos } = require("../helpers/validarDatosCiudadanos");
+const EncryptPWD = require("../helpers/pwdEncriptar.js");
 
 // Obtener datos de la tabla ciudadanos por filtro
 router.get("/", async (req, res) => {
@@ -85,13 +86,14 @@ router.post("/add", async (req, res) => {
     //Validacion: CURP no exista en la base de datos
     const [existCiudadano] = await pool.query(
       "SELECT * FROM Ciudadanos WHERE CURP =?",
-      [CURP]
+      [CURP],
     );
     if (existCiudadano.length > 0) {
       return res.status(400).json({
         error: "La CURP ya existe en la base de datos",
       });
     }
+    const pwdEncriptada = await EncryptPWD(pwd);
 
     //Consulta para insertar los datos del ciudadano donde cada "?" es un campo de la tabla "Ciudadanos" en MySQL
     const query = `
@@ -110,6 +112,7 @@ router.post("/add", async (req, res) => {
       Direccion,
       Foto,
       Vive,
+      pwdEncriptada,
     ];
 
     //Ejecucion de la consulta
@@ -155,7 +158,7 @@ router.put("/update", async (req, res) => {
     //Validacion: CURP no exista en la base de datos
     const [existCiudadano] = await pool.query(
       "SELECT * FROM Ciudadanos WHERE CURP =?",
-      [CURP]
+      [CURP],
     );
     if (existCiudadano.length <= 0) {
       return res.status(400).json({
@@ -212,7 +215,7 @@ router.delete("/delete", async (req, res) => {
 
     const [existe] = await pool.query(
       "SELECT * FROM Ciudadanos WHERE CURP = ?",
-      [CURP]
+      [CURP],
     );
     if (existe.length === 0) {
       return res.status(400).json({
@@ -221,7 +224,7 @@ router.delete("/delete", async (req, res) => {
     }
     const [existeVHE] = await pool.query(
       "SELECT * FROM Vehiculos WHERE curpFK = ?",
-      [CURP]
+      [CURP],
     );
     if (existeVHE.length > 0) {
       return res.status(400).json({
